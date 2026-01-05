@@ -14,7 +14,7 @@ export interface HabitStats {
   totalCompletions: number;
 }
 
-export type ViewMode = 'today' | 'week' | 'month';
+export type ViewMode = 'today' | 'week' | 'month' | 'report';
 
 export const HABIT_COLORS = [
   { name: 'Coral', value: 'hsl(16, 85%, 60%)' },
