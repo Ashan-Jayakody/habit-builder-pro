@@ -6,11 +6,12 @@ import { AddHabitDialog } from '@/components/AddHabitDialog';
 import { HabitCard } from '@/components/HabitCard';
 import { WeeklyProgress } from '@/components/WeeklyProgress';
 import { MonthlyProgress } from '@/components/MonthlyProgress';
+import { MonthlyReport } from '@/components/MonthlyReport';
 import { StatsOverview } from '@/components/StatsOverview';
 import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CalendarDays, LayoutGrid, Calendar } from 'lucide-react';
+import { CalendarDays, LayoutGrid, Calendar, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Index = () => {
@@ -70,7 +71,7 @@ const Index = () => {
 
         {/* View Tabs */}
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-          <TabsList className="grid w-full grid-cols-3 h-11">
+          <TabsList className="grid w-full grid-cols-4 h-11">
             <TabsTrigger value="today" className="flex items-center gap-2">
               <LayoutGrid className="w-4 h-4" />
               <span className="hidden sm:inline">Today</span>
@@ -82,6 +83,10 @@ const Index = () => {
             <TabsTrigger value="month" className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               <span className="hidden sm:inline">Month</span>
+            </TabsTrigger>
+            <TabsTrigger value="report" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">Report</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -118,6 +123,14 @@ const Index = () => {
                 <StatsOverview habits={habits} getHabitStats={getHabitStats} />
                 <MonthlyProgress habits={habits} getMonthlyData={getMonthlyData} />
               </div>
+            )}
+
+            {viewMode === 'report' && (
+              <MonthlyReport 
+                habits={habits} 
+                getHabitStats={getHabitStats} 
+                getMonthlyData={getMonthlyData} 
+              />
             )}
           </>
         )}
