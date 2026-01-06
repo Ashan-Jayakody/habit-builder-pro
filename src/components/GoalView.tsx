@@ -9,8 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
-import { Footprints, Plus, Trash2, MessageSquare, CheckCircle2, ClipboardList } from 'lucide-react';
+import { Footprints, Plus, Trash2, MessageSquare, CheckCircle2, ClipboardList, PartyPopper } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface GoalViewProps {
   goals: Goal[];
@@ -94,15 +95,22 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
             const targetDate = parseISO(goal.targetDate);
             const totalDays = differenceInDays(targetDate, startDate) + 1;
             const daysArr = Array.from({ length: Math.min(totalDays, 100) }, (_, i) => addDays(startDate, i));
+            const isFullyCompleted = goal.completedDays.length >= totalDays;
 
             return (
-              <Card key={goal.id} className="overflow-hidden">
+              <Card key={goal.id} className={cn("overflow-hidden transition-all duration-500", isFullyCompleted && "ring-2 ring-primary border-primary shadow-lg shadow-primary/20")}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-lg font-bold flex items-center gap-2">
-                    <Footprints className="w-5 h-5 text-primary" />
+                    {isFullyCompleted ? <CheckCircle2 className="w-5 h-5 text-primary animate-bounce" /> : <Footprints className="w-5 h-5 text-primary" />}
                     {goal.name}
                   </CardTitle>
                   <div className="flex items-center gap-1">
+                    {isFullyCompleted && (
+                      <div className="flex items-center gap-1 mr-2 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+                        <PartyPopper className="w-3 h-3" />
+                        Completed!
+                      </div>
+                    )}
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
@@ -158,6 +166,21 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                   </div>
                   
                   <ScrollArea className="h-32 w-full rounded-md border p-4">
+                    <AnimatePresence>
+                      {isFullyCompleted && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10 p-4 text-center"
+                        >
+                          <div className="space-y-2">
+                            <PartyPopper className="w-10 h-10 text-primary mx-auto" />
+                            <h3 className="font-bold text-lg">Congratulations!</h3>
+                            <p className="text-sm text-muted-foreground">You've reached your goal! Amazing work!</p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                     <div className="flex flex-wrap gap-4 justify-center">
                       {daysArr.map((day, idx) => {
                         const dateStr = format(day, 'yyyy-MM-dd');
