@@ -87,8 +87,10 @@ const Index = () => {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 pt-4">
-        <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 italic text-sm text-primary/80 text-center animate-fade-in">
-          "{dailyQuote}"
+        <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl p-6 shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
+          <p className="text-white text-lg font-bold text-center leading-relaxed drop-shadow-md italic">
+            "{dailyQuote}"
+          </p>
         </div>
       </div>
 
