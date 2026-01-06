@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
 import { ViewMode } from '@/lib/habitTypes';
@@ -11,12 +11,16 @@ import { StatsOverview } from '@/components/StatsOverview';
 import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CalendarDays, LayoutGrid, Calendar, FileText, Target } from 'lucide-react';
+import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GoalView } from '@/components/GoalView';
+import { Onboarding } from '@/components/Onboarding';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
+  const [userName, setUserName] = useState<string | null>(localStorage.getItem('user_name'));
+  const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('user_name'));
+
   const {
     habits,
     addHabit,
@@ -35,8 +39,18 @@ const Index = () => {
     addGoalLog,
   } = useHabits();
 
+  const handleOnboardingComplete = (name: string) => {
+    localStorage.setItem('user_name', name);
+    setUserName(name);
+    setShowOnboarding(false);
+  };
+
   const today = new Date();
   const completedToday = habits.filter(h => isHabitCompletedOnDate(h, today)).length;
+
+  if (showOnboarding) {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,13 +58,18 @@ const Index = () => {
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                HabitFlow
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {format(today, 'EEEE, MMMM d')}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <UserCircle className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-none">
+                  Hi, {userName}
+                </h1>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {format(today, 'EEEE, MMMM d')}
+                </p>
+              </div>
             </div>
             <AddHabitDialog onAdd={addHabit} />
           </div>
