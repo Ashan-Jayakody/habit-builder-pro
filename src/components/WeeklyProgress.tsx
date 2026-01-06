@@ -34,24 +34,27 @@ export const WeeklyProgress = ({ habits, getWeeklyData, getNoteForDate }: Weekly
         <CardContent>
           <div className="space-y-4">
             {/* Day Headers */}
-            <div className="grid grid-cols-7 gap-2 text-center">
-              {weekDays.map((day) => (
-                <div
-                  key={day.dayName}
-                  className={cn(
-                    "text-xs font-medium",
-                    isToday(day.date) ? "text-primary" : "text-muted-foreground"
-                  )}
-                >
-                  {day.dayName}
-                  <div className={cn(
-                    "text-[10px] mt-0.5",
-                    isToday(day.date) && "font-bold"
-                  )}>
-                    {format(day.date, 'd')}
+            <div className="flex items-center gap-3">
+              <div className="w-8 flex-shrink-0" />
+              <div className="grid grid-cols-7 gap-2 flex-1 text-center">
+                {weekDays.map((day) => (
+                  <div
+                    key={day.dayName}
+                    className={cn(
+                      "text-xs font-medium",
+                      isToday(day.date) ? "text-primary" : "text-muted-foreground"
+                    )}
+                  >
+                    {day.dayName}
+                    <div className={cn(
+                      "text-[10px] mt-0.5",
+                      isToday(day.date) && "font-bold"
+                    )}>
+                      {format(day.date, 'd')}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             {/* Habit Rows */}
