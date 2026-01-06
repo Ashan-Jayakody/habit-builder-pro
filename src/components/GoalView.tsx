@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Footprints, Plus, Trash2, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Footprints, Plus, Trash2, MessageSquare, CheckCircle2, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface GoalViewProps {
@@ -101,19 +102,59 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                     <Footprints className="w-5 h-5 text-primary" />
                     {goal.name}
                   </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => onDeleteGoal(goal.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                          <ClipboardList className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Goal Logs: {goal.name}</DialogTitle>
+                        </DialogHeader>
+                        <ScrollArea className="h-[400px] mt-4 pr-4">
+                          <div className="space-y-4">
+                            {goal.logs.length === 0 ? (
+                              <p className="text-center text-muted-foreground py-8">No logs added yet.</p>
+                            ) : (
+                              goal.logs
+                                .sort((a, b) => b.date.localeCompare(a.date))
+                                .map((log, idx) => (
+                                  <div key={idx} className="border-l-2 border-primary pl-4 py-1">
+                                    <p className="text-xs font-semibold text-muted-foreground">
+                                      {format(parseISO(log.date), 'MMMM d, yyyy')}
+                                    </p>
+                                    <p className="text-sm mt-1">{log.note}</p>
+                                  </div>
+                                ))
+                            )}
+                          </div>
+                        </ScrollArea>
+                      </DialogContent>
+                    </Dialog>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => onDeleteGoal(goal.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between mb-2 text-sm text-muted-foreground">
                     <span>Target: {format(targetDate, 'MMM d, yyyy')}</span>
                     <span>{totalDays} day journey</span>
+                  </div>
+
+                  <div className="mb-6 space-y-2">
+                    <div className="flex justify-between text-xs font-medium">
+                      <span>Progress</span>
+                      <span>{Math.round((goal.completedDays.length / totalDays) * 100)}%</span>
+                    </div>
+                    <Progress value={(goal.completedDays.length / totalDays) * 100} className="h-2" />
                   </div>
                   
                   <ScrollArea className="h-32 w-full rounded-md border p-4">
