@@ -1,14 +1,10 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Habit } from '@/lib/habitTypes';
 import { format, isToday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { StickyNote } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 interface WeeklyProgressProps {
   habits: Habit[];
@@ -21,12 +17,14 @@ interface WeeklyProgressProps {
 }
 
 export const WeeklyProgress = ({ habits, getWeeklyData, getNoteForDate }: WeeklyProgressProps) => {
+  const [selectedDay, setSelectedDay] = useState<{ date: Date; note: string } | null>(null);
+
   if (habits.length === 0) return null;
 
   const weekDays = getWeeklyData(habits[0]);
 
   return (
-    <TooltipProvider>
+    <>
       <Card className="shadow-card border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold">This Week</CardTitle>
@@ -69,18 +67,20 @@ export const WeeklyProgress = ({ habits, getWeeklyData, getNoteForDate }: Weekly
                     {data.map((day, idx) => {
                       const note = getNoteForDate(habit, day.date);
                       const hasNote = !!note;
-                      
-                      const dayBox = (
+
+                      return (
                         <div
+                          key={idx}
                           className={cn(
                             "aspect-square rounded-md flex items-center justify-center transition-all relative",
                             day.isCompleted
-                              ? "shadow-sm"
-                              : "bg-muted"
+                              ? "shadow-sm cursor-pointer hover:shadow-md"
+                              : "bg-muted cursor-pointer hover:opacity-80"
                           )}
                           style={{
                             backgroundColor: day.isCompleted ? habit.color : undefined,
                           }}
+                          onClick={() => hasNote && setSelectedDay({ date: day.date, note })}
                         >
                           {day.isCompleted && (
                             <svg
@@ -104,22 +104,6 @@ export const WeeklyProgress = ({ habits, getWeeklyData, getNoteForDate }: Weekly
                           )}
                         </div>
                       );
-
-                      if (hasNote) {
-                        return (
-                          <Tooltip key={idx}>
-                            <TooltipTrigger asChild>
-                              {dayBox}
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-[200px]">
-                              <p className="text-xs font-medium mb-1">{format(day.date, 'MMM d')}</p>
-                              <p className="text-xs">{note}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        );
-                      }
-
-                      return <div key={idx}>{dayBox}</div>;
                     })}
                   </div>
                 </div>
@@ -128,6 +112,19 @@ export const WeeklyProgress = ({ habits, getWeeklyData, getNoteForDate }: Weekly
           </div>
         </CardContent>
       </Card>
-    </TooltipProvider>
+
+      <Dialog open={!!selectedDay} onOpenChange={(open) => !open && setSelectedDay(null)}>
+        <DialogContent className="sm:max-w-[300px]">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedDay && format(selectedDay.date, 'EEEE, MMMM d, yyyy')}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
+            {selectedDay?.note}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

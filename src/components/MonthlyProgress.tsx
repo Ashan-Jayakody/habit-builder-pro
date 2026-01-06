@@ -2,16 +2,11 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Habit } from '@/lib/habitTypes';
 import { format, startOfMonth, getDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, StickyNote } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 interface MonthlyProgressProps {
   habits: Habit[];
@@ -26,6 +21,7 @@ interface MonthlyProgressProps {
 export const MonthlyProgress = ({ habits, getMonthlyData, getNoteForDate }: MonthlyProgressProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedHabitId, setSelectedHabitId] = useState<string>(habits[0]?.id || '');
+  const [selectedDay, setSelectedDay] = useState<{ date: Date; note: string } | null>(null);
 
   if (habits.length === 0) return null;
 
@@ -48,7 +44,7 @@ export const MonthlyProgress = ({ habits, getMonthlyData, getNoteForDate }: Mont
   };
 
   return (
-    <TooltipProvider>
+    <>
       <Card className="shadow-card border-border/50">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -103,17 +99,19 @@ export const MonthlyProgress = ({ habits, getMonthlyData, getNoteForDate }: Mont
               const note = getNoteForDate(selectedHabit, day.date);
               const hasNote = !!note;
 
-              const dayBox = (
+              return (
                 <div
+                  key={idx}
                   className={cn(
                     "aspect-square rounded-md flex items-center justify-center text-xs font-medium transition-all relative",
                     day.isCompleted
-                      ? "text-white shadow-sm"
-                      : "bg-muted text-muted-foreground"
+                      ? "text-white shadow-sm cursor-pointer hover:shadow-md"
+                      : "bg-muted text-muted-foreground cursor-pointer hover:opacity-80"
                   )}
                   style={{
                     backgroundColor: day.isCompleted ? selectedHabit.color : undefined,
                   }}
+                  onClick={() => hasNote && setSelectedDay({ date: day.date, note })}
                 >
                   {day.dayNumber}
                   {hasNote && (
@@ -123,22 +121,6 @@ export const MonthlyProgress = ({ habits, getMonthlyData, getNoteForDate }: Mont
                   )}
                 </div>
               );
-
-              if (hasNote) {
-                return (
-                  <Tooltip key={idx}>
-                    <TooltipTrigger asChild>
-                      {dayBox}
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[200px]">
-                      <p className="text-xs font-medium mb-1">{format(day.date, 'MMM d')}</p>
-                      <p className="text-xs">{note}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              }
-
-              return <div key={idx}>{dayBox}</div>;
             })}
           </div>
 
@@ -151,6 +133,19 @@ export const MonthlyProgress = ({ habits, getMonthlyData, getNoteForDate }: Mont
           </div>
         </CardContent>
       </Card>
-    </TooltipProvider>
+
+      <Dialog open={!!selectedDay} onOpenChange={(open) => !open && setSelectedDay(null)}>
+        <DialogContent className="sm:max-w-[300px]">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedDay && format(selectedDay.date, 'MMMM d, yyyy')}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
+            {selectedDay?.note}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
