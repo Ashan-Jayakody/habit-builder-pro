@@ -36,7 +36,7 @@ export const AddHabitDialog = ({ onAdd }: AddHabitDialogProps) => {
           New Habit
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Create New Habit</DialogTitle>
         </DialogHeader>
@@ -54,7 +54,7 @@ export const AddHabitDialog = ({ onAdd }: AddHabitDialogProps) => {
 
           <div className="space-y-2">
             <Label>Choose an Emoji</Label>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-6 gap-2">
               {HABIT_EMOJIS.map((e) => (
                 <button
                   key={e}
@@ -75,7 +75,7 @@ export const AddHabitDialog = ({ onAdd }: AddHabitDialogProps) => {
 
           <div className="space-y-2">
             <Label>Color</Label>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-6 gap-2">
               {HABIT_COLORS.map((c) => (
                 <button
                   key={c.name}
