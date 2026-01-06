@@ -79,7 +79,7 @@ const Index = () => {
 
         {/* View Tabs */}
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-          <TabsList className="grid w-full grid-cols-4 h-11">
+          <TabsList className="grid w-full grid-cols-5 h-11">
             <TabsTrigger value="today" className="flex items-center gap-2">
               <LayoutGrid className="w-4 h-4" />
               <span className="hidden sm:inline">Today</span>
