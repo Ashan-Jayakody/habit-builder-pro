@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Habit, HabitStats } from '@/lib/habitTypes';
+import { Habit, HabitStats, HabitNote } from '@/lib/habitTypes';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, differenceInDays, parseISO, isAfter, isBefore, isEqual } from 'date-fns';
 
 const STORAGE_KEY = 'habits-tracker-data';
@@ -22,12 +22,13 @@ export const useHabits = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
   }, [habits]);
 
-  const addHabit = useCallback((habit: Omit<Habit, 'id' | 'createdAt' | 'completedDates'>) => {
+  const addHabit = useCallback((habit: Omit<Habit, 'id' | 'createdAt' | 'completedDates' | 'notes'>) => {
     const newHabit: Habit = {
       ...habit,
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       completedDates: [],
+      notes: [],
     };
     setHabits(prev => [...prev, newHabit]);
   }, []);
@@ -53,6 +54,35 @@ export const useHabits = () => {
   const isHabitCompletedOnDate = useCallback((habit: Habit, date: Date): boolean => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return habit.completedDates.includes(dateStr);
+  }, []);
+
+  const addNote = useCallback((habitId: string, date: Date, note: string) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    setHabits(prev => prev.map(habit => {
+      if (habit.id !== habitId) return habit;
+      const existingNotes = habit.notes || [];
+      const existingIndex = existingNotes.findIndex(n => n.date === dateStr);
+      
+      if (existingIndex >= 0) {
+        const updatedNotes = [...existingNotes];
+        if (note.trim()) {
+          updatedNotes[existingIndex] = { date: dateStr, note: note.trim() };
+        } else {
+          updatedNotes.splice(existingIndex, 1);
+        }
+        return { ...habit, notes: updatedNotes };
+      } else if (note.trim()) {
+        return { ...habit, notes: [...existingNotes, { date: dateStr, note: note.trim() }] };
+      }
+      return habit;
+    }));
+  }, []);
+
+  const getNoteForDate = useCallback((habit: Habit, date: Date): string => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const notes = habit.notes || [];
+    const found = notes.find(n => n.date === dateStr);
+    return found?.note || '';
   }, []);
 
   const getHabitStats = useCallback((habit: Habit): HabitStats => {
@@ -148,5 +178,7 @@ export const useHabits = () => {
     getHabitStats,
     getWeeklyData,
     getMonthlyData,
+    addNote,
+    getNoteForDate,
   };
 };
