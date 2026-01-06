@@ -25,6 +25,8 @@ const Index = () => {
     getHabitStats,
     getWeeklyData,
     getMonthlyData,
+    addNote,
+    getNoteForDate,
   } = useHabits();
 
   const today = new Date();
@@ -104,8 +106,10 @@ const Index = () => {
                     habit={habit}
                     isCompletedToday={isHabitCompletedOnDate(habit, today)}
                     stats={getHabitStats(habit)}
+                    todayNote={getNoteForDate(habit, today)}
                     onToggle={() => toggleHabitCompletion(habit.id)}
                     onDelete={() => deleteHabit(habit.id)}
+                    onSaveNote={(note) => addNote(habit.id, today, note)}
                   />
                 ))}
               </div>
