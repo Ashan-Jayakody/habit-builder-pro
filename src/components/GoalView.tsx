@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Goal } from '@/lib/habitTypes';
-import { format, differenceInDays, parseISO, addDays, isSameDay } from 'date-fns';
+import { format, differenceInDays, parseISO, addDays, isSameDay, isBefore, isAfter, startOfDay } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -186,16 +186,20 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                         const dateStr = format(day, 'yyyy-MM-dd');
                         const isCompleted = goal.completedDays.includes(dateStr);
                         const hasLog = goal.logs.some(l => l.date === dateStr);
+                        const isFuture = isAfter(startOfDay(day), startOfDay(new Date()));
                         
                         return (
                           <div key={idx} className="flex flex-col items-center gap-1">
                             <button
+                              disabled={isFuture}
                               onClick={() => onToggleDay(goal.id, day)}
                               className={cn(
-                                "w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110",
+                                "w-10 h-10 rounded-full flex items-center justify-center transition-all",
+                                !isFuture && "hover:scale-110",
                                 isCompleted 
                                   ? "bg-primary text-primary-foreground shadow-lg" 
-                                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                  : "bg-muted text-muted-foreground hover:bg-muted/80",
+                                isFuture && "opacity-20 cursor-not-allowed grayscale"
                               )}
                             >
                               <Footprints className={cn("w-5 h-5", isCompleted ? "fill-current" : "")} />
@@ -204,7 +208,12 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                             <Button
                               variant="ghost"
                               size="icon"
-                              className={cn("h-6 w-6 mt-1", hasLog ? "text-primary" : "text-muted-foreground/30")}
+                              disabled={isFuture}
+                              className={cn(
+                                "h-6 w-6 mt-1", 
+                                hasLog ? "text-primary" : "text-muted-foreground/30",
+                                isFuture && "opacity-0 pointer-events-none"
+                              )}
                               onClick={() => {
                                 setSelectedDay({ goalId: goal.id, date: day });
                                 const log = goal.logs.find(l => l.date === dateStr);
