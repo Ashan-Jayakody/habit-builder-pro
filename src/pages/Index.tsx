@@ -118,14 +118,14 @@ const Index = () => {
             {viewMode === 'week' && (
               <div className="space-y-6">
                 <StatsOverview habits={habits} getHabitStats={getHabitStats} />
-                <WeeklyProgress habits={habits} getWeeklyData={getWeeklyData} />
+                <WeeklyProgress habits={habits} getWeeklyData={getWeeklyData} getNoteForDate={getNoteForDate} />
               </div>
             )}
 
             {viewMode === 'month' && (
               <div className="space-y-6">
                 <StatsOverview habits={habits} getHabitStats={getHabitStats} />
-                <MonthlyProgress habits={habits} getMonthlyData={getMonthlyData} />
+                <MonthlyProgress habits={habits} getMonthlyData={getMonthlyData} getNoteForDate={getNoteForDate} />
               </div>
             )}
 
