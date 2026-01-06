@@ -20,7 +20,21 @@ export interface HabitStats {
   totalCompletions: number;
 }
 
-export type ViewMode = 'today' | 'week' | 'month' | 'report';
+export type ViewMode = 'today' | 'week' | 'month' | 'report' | 'goals';
+
+export interface GoalLog {
+  date: string;
+  note: string;
+}
+
+export interface Goal {
+  id: string;
+  name: string;
+  targetDate: string;
+  createdAt: string;
+  logs: GoalLog[];
+  completedDays: string[]; // dates that are "ticked"
+}
 
 export const HABIT_COLORS = [
   { name: 'Coral', value: 'hsl(16, 85%, 60%)' },

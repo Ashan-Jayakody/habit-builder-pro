@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Habit, HabitStats, HabitNote } from '@/lib/habitTypes';
+import { Habit, HabitStats, HabitNote, Goal } from '@/lib/habitTypes';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, differenceInDays, parseISO, isAfter, isBefore, isEqual } from 'date-fns';
 
 const STORAGE_KEY = 'habits-tracker-data';
@@ -169,6 +169,71 @@ export const useHabits = () => {
     }));
   }, [isHabitCompletedOnDate]);
 
+  // Goal logic
+  const [goals, setGoals] = useState<Goal[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('goals-tracker-data');
+    if (stored) {
+      try {
+        setGoals(JSON.parse(stored));
+      } catch {
+        setGoals([]);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('goals-tracker-data', JSON.stringify(goals));
+  }, [goals]);
+
+  const addGoal = useCallback((name: string, targetDate: Date) => {
+    const newGoal: Goal = {
+      id: crypto.randomUUID(),
+      name,
+      targetDate: targetDate.toISOString(),
+      createdAt: new Date().toISOString(),
+      logs: [],
+      completedDays: [],
+    };
+    setGoals(prev => [...prev, newGoal]);
+  }, []);
+
+  const deleteGoal = useCallback((id: string) => {
+    setGoals(prev => prev.filter(g => g.id !== id));
+  }, []);
+
+  const toggleGoalDay = useCallback((goalId: string, date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    setGoals(prev => prev.map(goal => {
+      if (goal.id !== goalId) return goal;
+      const isCompleted = goal.completedDays.includes(dateStr);
+      return {
+        ...goal,
+        completedDays: isCompleted
+          ? goal.completedDays.filter(d => d !== dateStr)
+          : [...goal.completedDays, dateStr],
+      };
+    }));
+  }, []);
+
+  const addGoalLog = useCallback((goalId: string, date: Date, note: string) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    setGoals(prev => prev.map(goal => {
+      if (goal.id !== goalId) return goal;
+      const existingLogs = goal.logs || [];
+      const existingIndex = existingLogs.findIndex(l => l.date === dateStr);
+      
+      if (existingIndex >= 0) {
+        const updatedLogs = [...existingLogs];
+        updatedLogs[existingIndex] = { date: dateStr, note };
+        return { ...goal, logs: updatedLogs };
+      } else {
+        return { ...goal, logs: [...existingLogs, { date: dateStr, note }] };
+      }
+    }));
+  }, []);
+
   return {
     habits,
     addHabit,
@@ -180,5 +245,10 @@ export const useHabits = () => {
     getMonthlyData,
     addNote,
     getNoteForDate,
+    goals,
+    addGoal,
+    deleteGoal,
+    toggleGoalDay,
+    addGoalLog,
   };
 };

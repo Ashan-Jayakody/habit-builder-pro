@@ -11,8 +11,9 @@ import { StatsOverview } from '@/components/StatsOverview';
 import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CalendarDays, LayoutGrid, Calendar, FileText } from 'lucide-react';
+import { CalendarDays, LayoutGrid, Calendar, FileText, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { GoalView } from '@/components/GoalView';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
@@ -27,6 +28,11 @@ const Index = () => {
     getMonthlyData,
     addNote,
     getNoteForDate,
+    goals,
+    addGoal,
+    deleteGoal,
+    toggleGoalDay,
+    addGoalLog,
   } = useHabits();
 
   const today = new Date();
@@ -90,11 +96,15 @@ const Index = () => {
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">Report</span>
             </TabsTrigger>
+            <TabsTrigger value="goals" className="flex items-center gap-2">
+              <Target className="w-4 h-4" />
+              <span className="hidden sm:inline">Goals</span>
+            </TabsTrigger>
           </TabsList>
         </Tabs>
 
         {/* Content */}
-        {habits.length === 0 ? (
+        {habits.length === 0 && viewMode !== 'goals' ? (
           <EmptyState />
         ) : (
           <>
@@ -134,6 +144,16 @@ const Index = () => {
                 habits={habits} 
                 getHabitStats={getHabitStats} 
                 getMonthlyData={getMonthlyData} 
+              />
+            )}
+
+            {viewMode === 'goals' && (
+              <GoalView
+                goals={goals}
+                onAddGoal={addGoal}
+                onDeleteGoal={deleteGoal}
+                onToggleDay={toggleGoalDay}
+                onAddLog={addGoalLog}
               />
             )}
           </>
