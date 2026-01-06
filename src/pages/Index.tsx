@@ -15,11 +15,21 @@ import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle } from
 import { cn } from '@/lib/utils';
 import { GoalView } from '@/components/GoalView';
 import { Onboarding } from '@/components/Onboarding';
+import { quotes } from '@/lib/quotes';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
   const [userName, setUserName] = useState<string | null>(localStorage.getItem('user_name'));
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('user_name'));
+
+  const [dailyQuote, setDailyQuote] = useState("");
+
+  useEffect(() => {
+    const today = new Date();
+    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
+    const quoteIndex = dayOfYear % quotes.length;
+    setDailyQuote(quotes[quoteIndex]);
+  }, []);
 
   const {
     habits,
@@ -75,6 +85,12 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      <div className="max-w-4xl mx-auto px-4 pt-4">
+        <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 italic text-sm text-primary/80 text-center animate-fade-in">
+          "{dailyQuote}"
+        </div>
+      </div>
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Progress Summary */}
