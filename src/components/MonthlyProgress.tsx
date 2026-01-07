@@ -7,6 +7,7 @@ import { Habit } from '@/lib/habitTypes';
 import { format, startOfMonth, getDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, StickyNote } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 interface MonthlyProgressProps {
   habits: Habit[];
@@ -22,6 +23,7 @@ export const MonthlyProgress = ({ habits, getMonthlyData, getNoteForDate }: Mont
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedHabitId, setSelectedHabitId] = useState<string>(habits[0]?.id || '');
   const [selectedDay, setSelectedDay] = useState<{ date: Date; note: string } | null>(null);
+  const { themeColor } = useThemeColor();
 
   if (habits.length === 0) return null;
 

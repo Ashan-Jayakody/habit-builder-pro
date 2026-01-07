@@ -90,11 +90,11 @@ const Index = () => {
                 habits={habits}
                 goals={goals}
               />
-              <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors">
                 <UserCircle className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-none">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-none transition-all">
                   Hi, {userName}
                 </h1>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -108,8 +108,8 @@ const Index = () => {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 pt-4">
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl p-6 shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
-          <p className="text-white text-lg font-bold text-center leading-relaxed drop-shadow-md italic">
+        <div className="bg-gradient-to-r from-primary to-accent rounded-xl p-6 shadow-lg transform hover:scale-[1.01] transition-all duration-300">
+          <p className="text-primary-foreground text-lg font-bold text-center leading-relaxed drop-shadow-md italic">
             "{dailyQuote}"
           </p>
         </div>

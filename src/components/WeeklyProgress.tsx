@@ -5,6 +5,7 @@ import { Habit } from '@/lib/habitTypes';
 import { format, isToday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { StickyNote } from 'lucide-react';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 interface WeeklyProgressProps {
   habits: Habit[];
@@ -18,6 +19,7 @@ interface WeeklyProgressProps {
 
 export const WeeklyProgress = ({ habits, getWeeklyData, getNoteForDate }: WeeklyProgressProps) => {
   const [selectedDay, setSelectedDay] = useState<{ date: Date; note: string } | null>(null);
+  const { themeColor } = useThemeColor();
 
   if (habits.length === 0) return null;
 

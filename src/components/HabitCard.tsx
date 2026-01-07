@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Habit, HabitStats } from '@/lib/habitTypes';
 import { Check, Flame, Trash2, TrendingUp, StickyNote, X, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,7 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
   const [justCompleted, setJustCompleted] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(todayNote);
+  const { themeColor } = useThemeColor();
 
   const handleToggle = () => {
     if (!isCompletedToday) {
@@ -66,7 +68,7 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
           className={cn(
             "w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all duration-300 flex-shrink-0",
             isCompletedToday
-              ? "shadow-warm"
+              ? "shadow-md brightness-110"
               : "bg-muted hover:scale-105"
           )}
           style={{
