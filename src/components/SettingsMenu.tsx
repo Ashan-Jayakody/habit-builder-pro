@@ -23,6 +23,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format, startOfYear, endOfYear, eachMonthOfInterval, startOfMonth, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
 import { Habit, Goal } from '@/lib/habitTypes';
 import { useThemeColor, themeColors, ThemeColor } from '@/hooks/use-theme-color';
+import { cn } from '@/lib/utils';
 
 interface SettingsMenuProps {
   userName: string;
