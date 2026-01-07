@@ -219,6 +219,15 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
                   </Button>
                 </div>
               </div>
+
+              <div className="pt-8 pb-4 text-center">
+                <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  HabitFlow
+                </p>
+                <p className="text-xs text-muted-foreground mt-1 font-medium opacity-60 uppercase tracking-widest">
+                  Your Journey, One Step at a Time
+                </p>
+              </div>
             </div>
           </ScrollArea>
         </SheetContent>
