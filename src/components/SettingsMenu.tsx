@@ -123,113 +123,115 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
           <SheetHeader>
             <SheetTitle>Settings</SheetTitle>
           </SheetHeader>
-          <ScrollArea className="h-[calc(100vh-80px)] pr-4">
-            <div className="space-y-6 py-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base font-medium">Change Name</Label>
-                    <p className="text-sm text-muted-foreground">Update your display name</p>
+          <div className="flex flex-col h-[calc(100vh-80px)]">
+            <ScrollArea className="flex-1 pr-4">
+              <div className="space-y-6 py-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label className="text-base font-medium">Change Name</Label>
+                      <p className="text-sm text-muted-foreground">Update your display name</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setNewName(userName);
+                        setShowNameDialog(true);
+                      }}
+                    >
+                      <User className="h-5 w-5" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setNewName(userName);
-                      setShowNameDialog(true);
-                    }}
-                  >
-                    <User className="h-5 w-5" />
-                  </Button>
-                </div>
 
-                <Separator />
+                  <Separator />
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base font-medium">Dark Mode</Label>
-                    <p className="text-sm text-muted-foreground">Toggle dark mode theme</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {theme === 'dark' ? (
-                      <Moon className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Sun className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <Switch
-                      checked={theme === 'dark'}
-                      onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-3">
-                  <div className="space-y-0.5">
-                    <Label className="text-base font-medium">Theme Color</Label>
-                    <p className="text-sm text-muted-foreground">Choose your favorite color</p>
-                  </div>
-                  <div className="flex flex-wrap gap-3">
-                    {(Object.keys(themeColors) as ThemeColor[]).map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setThemeColor(color)}
-                        className={cn(
-                          "h-8 w-8 rounded-full border-2 transition-all",
-                          themeColor === color ? "border-foreground scale-110 shadow-sm" : "border-transparent hover:scale-105"
-                        )}
-                        style={{ backgroundColor: `hsl(${themeColors[color].primary})` }}
-                        title={color.charAt(0).toUpperCase() + color.slice(1)}
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label className="text-base font-medium">Dark Mode</Label>
+                      <p className="text-sm text-muted-foreground">Toggle dark mode theme</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {theme === 'dark' ? (
+                        <Moon className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Sun className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <Switch
+                        checked={theme === 'dark'}
+                        onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
                       />
-                    ))}
+                    </div>
                   </div>
-                </div>
 
-                <Separator />
+                  <Separator />
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base font-medium">Yearly Stats</Label>
-                    <p className="text-sm text-muted-foreground">View your progress this year</p>
+                  <div className="space-y-3">
+                    <div className="space-y-0.5">
+                      <Label className="text-base font-medium">Theme Color</Label>
+                      <p className="text-sm text-muted-foreground">Choose your favorite color</p>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      {(Object.keys(themeColors) as ThemeColor[]).map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => setThemeColor(color)}
+                          className={cn(
+                            "h-8 w-8 rounded-full border-2 transition-all",
+                            themeColor === color ? "border-foreground scale-110 shadow-sm" : "border-transparent hover:scale-105"
+                          )}
+                          style={{ backgroundColor: `hsl(${themeColors[color].primary})` }}
+                          title={color.charAt(0).toUpperCase() + color.slice(1)}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setShowStatsDialog(true)}
-                  >
-                    <TrendingUp className="h-5 w-5" />
-                  </Button>
-                </div>
 
-                <Separator />
+                  <Separator />
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base font-medium text-destructive">Reset All Data</Label>
-                    <p className="text-sm text-muted-foreground">Delete all habits and goals</p>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label className="text-base font-medium">Yearly Stats</Label>
+                      <p className="text-sm text-muted-foreground">View your progress this year</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowStatsDialog(true)}
+                    >
+                      <TrendingUp className="h-5 w-5" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => setShowResetDialog(true)}
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </Button>
+
+                  <Separator />
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label className="text-base font-medium text-destructive">Reset All Data</Label>
+                      <p className="text-sm text-muted-foreground">Delete all habits and goals</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => setShowResetDialog(true)}
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-
-              <div className="pt-8 pb-4 text-center">
-                <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  HabitFlow
-                </p>
-                <p className="text-xs text-muted-foreground mt-1 font-medium opacity-60 uppercase tracking-widest">
-                  Your Journey, One Step at a Time
-                </p>
-              </div>
+            </ScrollArea>
+            
+            <div className="pt-4 pb-2 text-center border-t mt-auto">
+              <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                HabitFlow
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 font-medium opacity-60 uppercase tracking-widest">
+                Your Journey, One Step at a Time
+              </p>
             </div>
-          </ScrollArea>
+          </div>
         </SheetContent>
       </Sheet>
 
