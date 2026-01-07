@@ -118,8 +118,8 @@ const Index = () => {
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Progress Summary */}
         {habits.length > 0 && (
-          <div className="p-4 rounded-2xl gradient-warm shadow-warm">
-            <div className="flex items-center justify-between text-white">
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20">
+            <div className="flex items-center justify-between text-primary-foreground">
               <div>
                 <p className="text-sm opacity-90">Today's Progress</p>
                 <p className="text-3xl font-bold">
