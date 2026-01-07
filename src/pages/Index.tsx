@@ -108,8 +108,8 @@ const Index = () => {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 pt-4">
-        <div className="bg-gradient-to-r from-primary to-accent rounded-xl p-6 shadow-lg transform hover:scale-[1.01] transition-all duration-300">
-          <p className="text-primary-foreground text-lg font-bold text-center leading-relaxed drop-shadow-md italic">
+        <div className="bg-primary/5 rounded-xl p-4 border border-primary/10 transition-all duration-300">
+          <p className="text-foreground/80 text-sm font-medium text-center leading-relaxed italic">
             "{dailyQuote}"
           </p>
         </div>
