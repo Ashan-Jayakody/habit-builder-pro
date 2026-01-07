@@ -108,7 +108,7 @@ const Index = () => {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 pt-4">
-        <div className="bg-primary/5 rounded-xl p-4 border border-primary/10 transition-all duration-300">
+        <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 transition-all duration-300">
           <p className="text-foreground/80 text-sm font-medium text-center leading-relaxed italic">
             "{dailyQuote}"
           </p>
