@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from 'next-themes';
-import { Menu, User, Moon, Sun, Trash2, TrendingUp, X } from 'lucide-react';
+import { Menu, User, Moon, Sun, Trash2, TrendingUp, X, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +22,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { format, startOfYear, endOfYear, eachMonthOfInterval, startOfMonth, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
 import { Habit, Goal } from '@/lib/habitTypes';
+import { useThemeColor, themeColors, ThemeColor } from '@/hooks/use-theme-color';
 
 interface SettingsMenuProps {
   userName: string;
@@ -38,6 +39,7 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
   const [showStatsDialog, setShowStatsDialog] = useState(false);
   const [newName, setNewName] = useState(userName);
   const { theme, setTheme } = useTheme();
+  const { themeColor, setThemeColor } = useThemeColor();
 
   const handleNameSave = () => {
     if (newName.trim()) {
@@ -157,6 +159,29 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
                       checked={theme === 'dark'}
                       onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
                     />
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <div className="space-y-0.5">
+                    <Label className="text-base font-medium">Theme Color</Label>
+                    <p className="text-sm text-muted-foreground">Choose your favorite color</p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {(Object.keys(themeColors) as ThemeColor[]).map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setThemeColor(color)}
+                        className={cn(
+                          "h-8 w-8 rounded-full border-2 transition-all",
+                          themeColor === color ? "border-foreground scale-110 shadow-sm" : "border-transparent hover:scale-105"
+                        )}
+                        style={{ backgroundColor: `hsl(${themeColors[color].primary})` }}
+                        title={color.charAt(0).toUpperCase() + color.slice(1)}
+                      />
+                    ))}
                   </div>
                 </div>
 
