@@ -9,6 +9,7 @@ import { MonthlyProgress } from '@/components/MonthlyProgress';
 import { MonthlyReport } from '@/components/MonthlyReport';
 import { StatsOverview } from '@/components/StatsOverview';
 import { EmptyState } from '@/components/EmptyState';
+import { SettingsMenu } from '@/components/SettingsMenu';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle } from 'lucide-react';
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { GoalView } from '@/components/GoalView';
 import { Onboarding } from '@/components/Onboarding';
 import { quotes } from '@/lib/quotes';
+import { toast } from 'sonner';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
@@ -55,6 +57,18 @@ const Index = () => {
     setShowOnboarding(false);
   };
 
+  const handleNameChange = (newName: string) => {
+    localStorage.setItem('user_name', newName);
+    setUserName(newName);
+    toast.success('Name updated successfully!');
+  };
+
+  const handleResetAll = () => {
+    localStorage.removeItem('habits-tracker-data');
+    localStorage.removeItem('goals-tracker-data');
+    window.location.reload();
+  };
+
   const today = new Date();
   const completedToday = habits.filter(h => isHabitCompletedOnDate(h, today)).length;
 
@@ -68,7 +82,14 @@ const Index = () => {
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <SettingsMenu
+                userName={userName || 'User'}
+                onNameChange={handleNameChange}
+                onResetAll={handleResetAll}
+                habits={habits}
+                goals={goals}
+              />
               <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <UserCircle className="h-6 w-6" />
               </div>

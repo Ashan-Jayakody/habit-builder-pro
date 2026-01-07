@@ -1,0 +1,381 @@
+import { useState } from 'react';
+import { useTheme } from 'next-themes';
+import { Menu, User, Moon, Sun, Trash2, TrendingUp, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { format, startOfYear, endOfYear, eachMonthOfInterval, startOfMonth, endOfMonth, eachDayOfInterval, parseISO } from 'date-fns';
+import { Habit, Goal } from '@/lib/habitTypes';
+
+interface SettingsMenuProps {
+  userName: string;
+  onNameChange: (newName: string) => void;
+  onResetAll: () => void;
+  habits: Habit[];
+  goals: Goal[];
+}
+
+export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals }: SettingsMenuProps) => {
+  const [open, setOpen] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showNameDialog, setShowNameDialog] = useState(false);
+  const [showStatsDialog, setShowStatsDialog] = useState(false);
+  const [newName, setNewName] = useState(userName);
+  const { theme, setTheme } = useTheme();
+
+  const handleNameSave = () => {
+    if (newName.trim()) {
+      onNameChange(newName.trim());
+      setShowNameDialog(false);
+      setOpen(false);
+    }
+  };
+
+  const handleReset = () => {
+    onResetAll();
+    setShowResetDialog(false);
+    setOpen(false);
+  };
+
+  const getYearlyStats = () => {
+    const currentYear = new Date().getFullYear();
+    const yearStart = startOfYear(new Date(currentYear, 0, 1));
+    const yearEnd = endOfYear(new Date(currentYear, 11, 31));
+    const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
+
+    return months.map(monthDate => {
+      const monthStart = startOfMonth(monthDate);
+      const monthEnd = endOfMonth(monthDate);
+      const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+      let totalCompletions = 0;
+      let totalPossible = 0;
+      let goalsCompleted = 0;
+
+      daysInMonth.forEach(day => {
+        const dateStr = format(day, 'yyyy-MM-dd');
+        const dayHabits = habits.filter(h => {
+          const habitCreated = parseISO(h.createdAt);
+          return habitCreated <= day;
+        });
+
+        totalPossible += dayHabits.length;
+
+        dayHabits.forEach(habit => {
+          if (habit.completedDates.includes(dateStr)) {
+            totalCompletions++;
+          }
+        });
+      });
+
+      goals.forEach(goal => {
+        const targetDate = parseISO(goal.targetDate);
+        if (targetDate >= monthStart && targetDate <= monthEnd) {
+          const createdDate = parseISO(goal.createdAt);
+          const totalDays = Math.ceil((targetDate.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          if (goal.completedDays.length >= totalDays) {
+            goalsCompleted++;
+          }
+        }
+      });
+
+      const completionRate = totalPossible > 0 ? Math.round((totalCompletions / totalPossible) * 100) : 0;
+
+      return {
+        month: format(monthDate, 'MMM'),
+        completionRate,
+        habitsCompleted: totalCompletions,
+        goalsAchieved: goalsCompleted,
+      };
+    });
+  };
+
+  const yearlyData = getYearlyStats();
+
+  return (
+    <>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-9 w-9">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+          <SheetHeader>
+            <SheetTitle>Settings</SheetTitle>
+          </SheetHeader>
+          <ScrollArea className="h-[calc(100vh-80px)] pr-4">
+            <div className="space-y-6 py-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base font-medium">Change Name</Label>
+                    <p className="text-sm text-muted-foreground">Update your display name</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setNewName(userName);
+                      setShowNameDialog(true);
+                    }}
+                  >
+                    <User className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base font-medium">Dark Mode</Label>
+                    <p className="text-sm text-muted-foreground">Toggle dark mode theme</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {theme === 'dark' ? (
+                      <Moon className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Sun className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <Switch
+                      checked={theme === 'dark'}
+                      onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                    />
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base font-medium">Yearly Stats</Label>
+                    <p className="text-sm text-muted-foreground">View your progress this year</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowStatsDialog(true)}
+                  >
+                    <TrendingUp className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base font-medium text-destructive">Reset All Data</Label>
+                    <p className="text-sm text-muted-foreground">Delete all habits and goals</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => setShowResetDialog(true)}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
+
+      <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Change Your Name</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Enter your name"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleNameSave();
+                  }
+                }}
+              />
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowNameDialog(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleNameSave}
+                disabled={!newName.trim()}
+                className="flex-1"
+              >
+                Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showStatsDialog} onOpenChange={setShowStatsDialog}>
+        <DialogContent className="sm:max-w-[700px] max-h-[85vh]">
+          <DialogHeader>
+            <DialogTitle>Yearly Statistics {new Date().getFullYear()}</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[500px] pr-4">
+            <div className="space-y-6 py-4">
+              <div>
+                <h3 className="text-sm font-medium mb-4">Habit Completion Rate</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={yearlyData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="month"
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      label={{ value: '%', angle: -90, position: 'insideLeft' }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="completionRate"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      name="Completion Rate (%)"
+                      dot={{ fill: 'hsl(var(--primary))' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              <Separator />
+
+              <div>
+                <h3 className="text-sm font-medium mb-4">Monthly Activity</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={yearlyData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="month"
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="habitsCompleted"
+                      stroke="hsl(var(--chart-1))"
+                      strokeWidth={2}
+                      name="Habits Completed"
+                      dot={{ fill: 'hsl(var(--chart-1))' }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="goalsAchieved"
+                      stroke="hsl(var(--chart-4))"
+                      strokeWidth={2}
+                      name="Goals Achieved"
+                      dot={{ fill: 'hsl(var(--chart-4))' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              <Separator />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-lg border bg-card">
+                  <p className="text-sm text-muted-foreground">Total Completions</p>
+                  <p className="text-2xl font-bold mt-1">
+                    {yearlyData.reduce((sum, m) => sum + m.habitsCompleted, 0)}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-card">
+                  <p className="text-sm text-muted-foreground">Goals Achieved</p>
+                  <p className="text-2xl font-bold mt-1">
+                    {yearlyData.reduce((sum, m) => sum + m.goalsAchieved, 0)}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-card">
+                  <p className="text-sm text-muted-foreground">Avg. Completion</p>
+                  <p className="text-2xl font-bold mt-1">
+                    {Math.round(yearlyData.reduce((sum, m) => sum + m.completionRate, 0) / 12)}%
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-card">
+                  <p className="text-sm text-muted-foreground">Best Month</p>
+                  <p className="text-2xl font-bold mt-1">
+                    {yearlyData.reduce((best, m) => m.completionRate > best.completionRate ? m : best, yearlyData[0])?.month || '-'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset All Data?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete all your habits, goals, completion history, and notes.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReset}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Reset Everything
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+};
