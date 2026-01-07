@@ -18,6 +18,7 @@ import { GoalView } from '@/components/GoalView';
 import { Onboarding } from '@/components/Onboarding';
 import { quotes } from '@/lib/quotes';
 import { toast } from 'sonner';
+import { useNotifications } from '@/hooks/useNotifications';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
@@ -50,6 +51,8 @@ const Index = () => {
     toggleGoalDay,
     addGoalLog,
   } = useHabits();
+
+  useNotifications(habits, isHabitCompletedOnDate);
 
   const handleOnboardingComplete = (name: string) => {
     localStorage.setItem('user_name', name);
