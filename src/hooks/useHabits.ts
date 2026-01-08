@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Habit, HabitStats, HabitNote, Goal } from '@/lib/habitTypes';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, differenceInDays, parseISO, isAfter, isBefore, isEqual } from 'date-fns';
+import { Preferences } from '@capacitor/preferences';
 
 const STORAGE_KEY = 'habits-tracker-data';
 
@@ -20,6 +21,21 @@ export const useHabits = () => {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+    const todayStr = new Date().toISOString().split('T')[0]; // Format: "2025-01-07"
+
+    const pendingCount = habits.filter(h => {
+      return !h.completedDates.includes(todayStr);
+    }).length;
+
+    // C. Save to Native Storage (so Android can see it!)
+    const saveToNative = async () => {
+        await Preferences.set({
+            key: 'pending_count',
+            value: pendingCount.toString()
+        });
+    };
+    saveToNative();
+    
   }, [habits]);
 
   const addHabit = useCallback((habit: Omit<Habit, 'id' | 'createdAt' | 'completedDates' | 'notes'>) => {

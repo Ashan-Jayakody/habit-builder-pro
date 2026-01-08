@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HabitFlow</string>
+    <string name="title_activity_main">HabitFlow</string>
+    <string name="package_name">app.lovable.ef37e8d168634c0a85c5c4adc117e6fc</string>
+    <string name="custom_url_scheme">app.lovable.ef37e8d168634c0a85c5c4adc117e6fc</string>
+</resources>
