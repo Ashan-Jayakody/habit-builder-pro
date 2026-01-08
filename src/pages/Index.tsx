@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
 import { ViewMode } from '@/lib/habitTypes';
@@ -19,11 +19,16 @@ import { Onboarding } from '@/components/Onboarding';
 import { quotes } from '@/lib/quotes';
 import { toast } from 'sonner';
 import { useNotifications } from '@/hooks/useNotifications';
+import { PenguinCelebration } from '@/components/PenguinCelebration';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
   const [userName, setUserName] = useState<string | null>(localStorage.getItem('user_name'));
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('user_name'));
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [lastCelebrationDate, setLastCelebrationDate] = useState<string | null>(
+    localStorage.getItem('last_celebration_date')
+  );
 
   const [dailyQuote, setDailyQuote] = useState("");
 
@@ -54,6 +59,23 @@ const Index = () => {
 
   useNotifications(habits, isHabitCompletedOnDate);
 
+  // Check if all habits are completed to trigger celebration
+  const today = new Date();
+  const todayStr = format(today, 'yyyy-MM-dd');
+  const completedToday = habits.filter(h => isHabitCompletedOnDate(h, today)).length;
+  const allHabitsCompleted = habits.length > 0 && completedToday === habits.length;
+
+  useEffect(() => {
+    if (allHabitsCompleted && lastCelebrationDate !== todayStr) {
+      setShowCelebration(true);
+      setLastCelebrationDate(todayStr);
+      localStorage.setItem('last_celebration_date', todayStr);
+    }
+  }, [allHabitsCompleted, lastCelebrationDate, todayStr]);
+
+  const handleCloseCelebration = useCallback(() => {
+    setShowCelebration(false);
+  }, []);
   const handleOnboardingComplete = (name: string) => {
     localStorage.setItem('user_name', name);
     setUserName(name);
@@ -69,11 +91,10 @@ const Index = () => {
   const handleResetAll = () => {
     localStorage.removeItem('habits-tracker-data');
     localStorage.removeItem('goals-tracker-data');
+    localStorage.removeItem('last_celebration_date');
     window.location.reload();
   };
 
-  const today = new Date();
-  const completedToday = habits.filter(h => isHabitCompletedOnDate(h, today)).length;
 
   if (showOnboarding) {
     return <Onboarding onComplete={handleOnboardingComplete} />;
@@ -220,6 +241,13 @@ const Index = () => {
           </>
         )}
       </main>
+
+      {/* Penguin Celebration */}
+      <PenguinCelebration
+        isVisible={showCelebration}
+        onClose={handleCloseCelebration}
+        userName={userName || undefined}
+      />
     </div>
   );
 };
