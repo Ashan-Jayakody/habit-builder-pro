@@ -21,15 +21,15 @@ const compliments = [
 export const PenguinCelebration = ({ isVisible, onClose, userName }: PenguinCelebrationProps) => {
   const [compliment, setCompliment] = useState('');
 
-  useEffect(() => {
+    useEffect(() => {
     if (isVisible) {
       const randomIndex = Math.floor(Math.random() * compliments.length);
       setCompliment(compliments[randomIndex]);
       
-      // Auto close after 4 seconds
+      // Auto close after 5 seconds
       const timer = setTimeout(() => {
         onClose();
-      }, 4000);
+      }, 5000);
       
       return () => clearTimeout(timer);
     }
@@ -98,85 +98,89 @@ export const PenguinCelebration = ({ isVisible, onClose, userName }: PenguinCele
             >
               {/* Penguin SVG */}
               <motion.svg
-                width="120"
-                height="140"
-                viewBox="0 0 120 140"
+                width="160"
+                height="160"
+                viewBox="0 0 160 160"
                 className="mb-4"
                 animate={{ 
-                  rotate: [0, -5, 5, -5, 0],
-                  y: [0, -8, 0]
+                  rotate: [0, -3, 3, -3, 0],
+                  y: [0, -5, 0]
                 }}
                 transition={{ 
-                  duration: 1,
+                  duration: 2,
                   repeat: Infinity,
-                  repeatType: 'reverse',
                   ease: 'easeInOut'
                 }}
               >
-                {/* Body */}
-                <ellipse cx="60" cy="90" rx="45" ry="50" fill="#1a1a2e" />
+                {/* Hair/Tuft */}
+                <path d="M75 15 Q80 5 85 15" fill="#2c2c2c" stroke="#2c2c2c" strokeWidth="2" />
+                <path d="M78 12 Q80 2 82 12" fill="#2c2c2c" stroke="#2c2c2c" strokeWidth="2" />
+
+                {/* Main Body (Black) */}
+                <ellipse cx="80" cy="85" rx="55" ry="60" fill="#2c2c2c" />
                 
-                {/* White belly */}
-                <ellipse cx="60" cy="95" rx="30" ry="38" fill="#f8f9fa" />
+                {/* White Belly/Face Area */}
+                <path 
+                  d="M80 35 
+                     C55 35, 40 55, 40 85 
+                     C40 120, 55 135, 80 135 
+                     C105 135, 120 120, 120 85 
+                     C120 55, 105 35, 80 35 Z" 
+                  fill="#ffffff" 
+                />
                 
-                {/* Head */}
-                <circle cx="60" cy="45" r="35" fill="#1a1a2e" />
-                
-                {/* White face */}
-                <ellipse cx="60" cy="50" rx="22" ry="20" fill="#f8f9fa" />
-                
-                {/* Left eye */}
-                <circle cx="50" cy="45" r="8" fill="#1a1a2e" />
-                <circle cx="52" cy="43" r="3" fill="#ffffff" />
-                
-                {/* Right eye */}
-                <circle cx="70" cy="45" r="8" fill="#1a1a2e" />
-                <circle cx="72" cy="43" r="3" fill="#ffffff" />
+                {/* Black bridge between eyes */}
+                <path d="M65 45 Q80 35 95 45 L80 60 Z" fill="#2c2c2c" />
+
+                {/* Left Eye */}
+                <g transform="translate(60, 65)">
+                  <circle r="12" fill="#2c2c2c" />
+                  <circle cx="3" cy="-3" r="4" fill="#ffffff" />
+                  <circle cx="-2" cy="2" r="1.5" fill="#ffffff" />
+                </g>
+
+                {/* Right Eye */}
+                <g transform="translate(100, 65)">
+                  <circle r="12" fill="#2c2c2c" />
+                  <circle cx="3" cy="-3" r="4" fill="#ffffff" />
+                  <circle cx="-2" cy="2" r="1.5" fill="#ffffff" />
+                </g>
                 
                 {/* Beak */}
-                <path d="M55 55 L60 65 L65 55 Z" fill="#ff9500" />
+                <path 
+                  d="M70 78 Q80 92 90 78 Q80 82 70 78" 
+                  fill="#f39c12" 
+                  stroke="#d35400" 
+                  strokeWidth="1"
+                />
                 
                 {/* Blush */}
-                <circle cx="40" cy="55" r="6" fill="#ffb3ba" opacity="0.6" />
-                <circle cx="80" cy="55" r="6" fill="#ffb3ba" opacity="0.6" />
+                <circle cx="45" cy="80" r="8" fill="#ffb3ba" opacity="0.4" />
+                <circle cx="115" cy="80" r="8" fill="#ffb3ba" opacity="0.4" />
                 
                 {/* Left wing */}
-                <motion.ellipse
-                  cx="20"
-                  cy="85"
-                  rx="12"
-                  ry="30"
-                  fill="#1a1a2e"
-                  animate={{ rotate: [0, -20, 0, -20, 0] }}
-                  transition={{ 
-                    duration: 0.5,
-                    repeat: Infinity,
-                    repeatDelay: 0.5
-                  }}
-                  style={{ transformOrigin: '30px 70px' }}
+                <motion.path
+                  d="M35 85 Q10 100 25 125 Q40 110 35 85"
+                  fill="#2c2c2c"
+                  animate={{ rotate: [0, -10, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{ transformOrigin: '35px 85px' }}
                 />
                 
                 {/* Right wing */}
-                <motion.ellipse
-                  cx="100"
-                  cy="85"
-                  rx="12"
-                  ry="30"
-                  fill="#1a1a2e"
-                  animate={{ rotate: [0, 20, 0, 20, 0] }}
-                  transition={{ 
-                    duration: 0.5,
-                    repeat: Infinity,
-                    repeatDelay: 0.5
-                  }}
-                  style={{ transformOrigin: '90px 70px' }}
+                <motion.path
+                  d="M125 85 Q150 100 135 125 Q120 110 125 85"
+                  fill="#2c2c2c"
+                  animate={{ rotate: [0, 10, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{ transformOrigin: '125px 85px' }}
                 />
                 
                 {/* Left foot */}
-                <ellipse cx="45" cy="138" rx="12" ry="6" fill="#ff9500" />
+                <path d="M55 135 Q50 145 65 145 Q70 145 70 135" fill="#f39c12" />
                 
                 {/* Right foot */}
-                <ellipse cx="75" cy="138" rx="12" ry="6" fill="#ff9500" />
+                <path d="M90 135 Q95 145 110 145 Q105 145 90 135" fill="#f39c12" />
               </motion.svg>
 
               {/* Greeting */}
