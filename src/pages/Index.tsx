@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { useNotifications } from '@/hooks/useNotifications';
 import { PenguinCelebration } from '@/components/PenguinCelebration';
 import { Penguin } from '@/components/Penguin';
+import { Puppy } from '@/components/Puppy';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
@@ -152,7 +153,7 @@ const Index = () => {
                 </p>
               </div>
               <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm overflow-hidden p-1">
-                <Penguin size={64} className="scale-125 translate-y-2" />
+                <Puppy size={64} className="scale-125 translate-y-1" />
               </div>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Penguin } from './Penguin';
+import { Puppy } from './Puppy';
 
 interface PenguinCelebrationProps {
   isVisible: boolean;
@@ -90,14 +91,14 @@ export const PenguinCelebration = ({ isVisible, onClose, userName }: PenguinCele
               ))}
             </div>
 
-            {/* Penguin */}
+            {/* Puppy */}
             <motion.div
               initial={{ y: 50 }}
               animate={{ y: 0 }}
               transition={{ delay: 0.2, type: 'spring', damping: 10 }}
               className="relative z-10 flex flex-col items-center"
             >
-              <Penguin size={160} className="mb-4" />
+              <Puppy size={160} className="mb-4" />
 
               {/* Greeting */}
               <motion.p
