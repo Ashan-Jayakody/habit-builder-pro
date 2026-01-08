@@ -20,6 +20,7 @@ import { quotes } from '@/lib/quotes';
 import { toast } from 'sonner';
 import { useNotifications } from '@/hooks/useNotifications';
 import { PenguinCelebration } from '@/components/PenguinCelebration';
+import { Penguin } from '@/components/Penguin';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
@@ -150,10 +151,8 @@ const Index = () => {
                   {completedToday} / {habits.length}
                 </p>
               </div>
-              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                <span className="text-2xl font-bold">
-                  {habits.length > 0 ? Math.round((completedToday / habits.length) * 100) : 0}%
-                </span>
+              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm overflow-hidden p-1">
+                <Penguin size={64} className="scale-125 translate-y-2" />
               </div>
             </div>
           </div>
