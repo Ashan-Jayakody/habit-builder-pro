@@ -108,7 +108,7 @@ export const MonthlyProgress = ({ habits, getMonthlyData, getNoteForDate }: Mont
                     "aspect-square rounded-md flex items-center justify-center text-xs font-medium transition-all relative",
                     day.isCompleted
                       ? "text-white shadow-sm cursor-pointer hover:shadow-md"
-                      : "bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 text-red-400 dark:text-red-900/50 cursor-pointer hover:opacity-80"
+                      : "bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 cursor-pointer hover:opacity-80"
                   )}
                   style={{
                     backgroundColor: day.isCompleted ? selectedHabit.color : undefined,
