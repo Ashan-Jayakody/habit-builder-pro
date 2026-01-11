@@ -206,7 +206,7 @@ const Index = () => {
                   {completedToday} / {habits.length}
                 </p>
               </div>
-              <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm overflow-hidden p-1">
+              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm overflow-hidden p-1">
                 <HabitCompanion 
                   completedCount={habits.reduce((acc, h) => acc + h.completedDates.length, 0)} 
                   size={64} 
