@@ -149,7 +149,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-[100] bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -187,7 +187,7 @@ const Index = () => {
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-24">
         {/* Momentum Bank */}
-        {habits.length > 0 && (
+        {habits.length > 0 && viewMode === 'today' && (
           <MomentumBank
             momentumPoints={momentumPoints}
             currentStreak={currentStreak}
