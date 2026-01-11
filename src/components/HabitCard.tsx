@@ -3,9 +3,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Habit, HabitStats } from '@/lib/habitTypes';
-import { Check, Flame, Trash2, TrendingUp, StickyNote, X, Save } from 'lucide-react';
+import { Check, Flame, Trash2, TrendingUp, StickyNote, X, Save, Timer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { FocusTimer } from '@/components/FocusTimer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +38,7 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
   const [justCompleted, setJustCompleted] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(todayNote);
+  const [focusTimerOpen, setFocusTimerOpen] = useState(false);
   const { themeColor } = useThemeColor();
 
   const handleToggle = () => {
@@ -57,6 +59,14 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
       setNoteText(todayNote);
     }
     setNoteOpen(open);
+  };
+
+  const handleFocusComplete = () => {
+    if (!isCompletedToday) {
+      setJustCompleted(true);
+      setTimeout(() => setJustCompleted(false), 600);
+      onToggle();
+    }
   };
 
   return (
@@ -117,6 +127,19 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
             </p>
           )}
         </div>
+
+        {/* Focus Timer Button */}
+        {!isCompletedToday && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setFocusTimerOpen(true)}
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
+            title="Start Focus Session"
+          >
+            <Timer className="w-4 h-4" />
+          </Button>
+        )}
 
         {/* Note Button */}
         <Popover open={noteOpen} onOpenChange={handleOpenNote}>
@@ -186,6 +209,16 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
           </AlertDialogContent>
         </AlertDialog>
       </div>
+
+      {/* Focus Timer Modal */}
+      <FocusTimer
+        isOpen={focusTimerOpen}
+        onClose={() => setFocusTimerOpen(false)}
+        habitName={habit.name}
+        habitEmoji={habit.emoji}
+        habitColor={habit.color}
+        onComplete={handleFocusComplete}
+      />
     </Card>
   );
 };
