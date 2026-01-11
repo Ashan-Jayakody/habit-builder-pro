@@ -104,15 +104,15 @@ export const FocusTimer = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md bg-gradient-to-br from-primary/95 via-primary to-primary/90 border-primary/20 text-white overflow-hidden">
+      <DialogContent className="sm:max-w-md bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-slate-700 text-white overflow-hidden">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold flex items-center justify-center gap-2">
             <span className="text-3xl">{habitEmoji}</span>
-            <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
               Focus Mode
             </span>
           </DialogTitle>
-          <p className="text-center text-white/70 text-sm">{habitName}</p>
+          <p className="text-center text-slate-400 text-sm">{habitName}</p>
         </DialogHeader>
 
         <div className="relative flex flex-col items-center py-8">
@@ -157,10 +157,10 @@ export const FocusTimer = ({
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 0.5 }}
                     >
-                      <Sparkles className="w-16 h-16 text-accent mx-auto mb-2" />
+                      <Sparkles className="w-16 h-16 text-amber-400 mx-auto mb-2" />
                     </motion.div>
                     <p className="text-2xl font-bold text-white">Session Complete!</p>
-                    <p className="text-accent mt-1">Habit marked as done 🎉</p>
+                    <p className="text-amber-400 mt-1">Habit marked as done 🎉</p>
                   </div>
                 </motion.div>
               </>
@@ -210,7 +210,7 @@ export const FocusTimer = ({
               >
                 {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
               </motion.span>
-              <span className="text-white/60 text-sm mt-2">
+              <span className="text-slate-400 text-sm mt-2">
                 {isRunning ? 'Focus in progress...' : 'Ready to focus'}
               </span>
             </div>
@@ -227,7 +227,7 @@ export const FocusTimer = ({
                 variant="outline"
                 size="icon"
                 onClick={handleReset}
-                className="w-12 h-12 rounded-full border-white/20 bg-white/10 hover:bg-white/20 text-white"
+                className="w-12 h-12 rounded-full border-slate-600 bg-slate-800/50 hover:bg-slate-700 text-white"
               >
                 <RotateCcw className="w-5 h-5" />
               </Button>
@@ -254,7 +254,7 @@ export const FocusTimer = ({
           {/* Progress indicator */}
           {!showConfetti && (
             <div className="mt-6 text-center">
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-slate-500">
                 {Math.round(progress)}% complete
               </p>
             </div>
