@@ -3,11 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Penguin } from './Penguin';
 import { Puppy } from './Puppy';
+import { HabitCompanion } from './HabitCompanion';
+import { Habit } from '@/lib/habitTypes';
 
 interface PenguinCelebrationProps {
   isVisible: boolean;
   onClose: () => void;
   userName?: string;
+  habits: Habit[];
 }
 
 const compliments = [
@@ -91,14 +94,19 @@ export const PenguinCelebration = ({ isVisible, onClose, userName }: PenguinCele
               ))}
             </div>
 
-            {/* Puppy */}
+            {/* Habit Companion */}
             <motion.div
               initial={{ y: 50 }}
               animate={{ y: 0 }}
               transition={{ delay: 0.2, type: 'spring', damping: 10 }}
               className="relative z-10 flex flex-col items-center"
             >
-              <Puppy size={160} className="mb-4" />
+              <HabitCompanion 
+                completedCount={habits.reduce((acc, h) => acc + h.completedDates.length, 0)} 
+                size={160} 
+                className="mb-4" 
+                isCelebrating={true}
+              />
 
               {/* Greeting */}
               <motion.p

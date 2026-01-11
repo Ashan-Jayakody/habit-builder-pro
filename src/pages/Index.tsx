@@ -24,6 +24,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { PenguinCelebration } from '@/components/PenguinCelebration';
 import { Penguin } from '@/components/Penguin';
 import { Puppy } from '@/components/Puppy';
+import { HabitCompanion } from '@/components/HabitCompanion';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
@@ -206,7 +207,11 @@ const Index = () => {
                 </p>
               </div>
               <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm overflow-hidden p-1">
-                <Puppy size={64} className="scale-125 translate-y-1" />
+                <HabitCompanion 
+                  completedCount={habits.reduce((acc, h) => acc + h.completedDates.length, 0)} 
+                  size={64} 
+                  isCelebrating={false}
+                />
               </div>
             </div>
           </div>
@@ -300,6 +305,7 @@ const Index = () => {
         isVisible={showCelebration}
         onClose={handleCloseCelebration}
         userName={userName || undefined}
+        habits={habits}
       />
     </div>
   );
