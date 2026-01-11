@@ -31,7 +31,7 @@ export const AddHabitDialog = ({ onAdd }: AddHabitDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gradient-warm shadow-warm text-primary-foreground hover:opacity-90 transition-opacity">
+        <Button className="bg-primary shadow-sm text-primary-foreground hover:bg-primary/90 transition-all">
           <Plus className="w-4 h-4 mr-2" />
           New Habit
         </Button>
@@ -104,7 +104,7 @@ export const AddHabitDialog = ({ onAdd }: AddHabitDialogProps) => {
             <Button
               type="submit"
               disabled={!name.trim()}
-              className="flex-1 gradient-warm text-primary-foreground hover:opacity-90"
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Create Habit
             </Button>
