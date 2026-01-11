@@ -23,7 +23,7 @@ const compliments = [
   "You're unstoppable! 🚀",
 ];
 
-export const PenguinCelebration = ({ isVisible, onClose, userName }: PenguinCelebrationProps) => {
+export const PenguinCelebration = ({ isVisible, onClose, userName, habits }: PenguinCelebrationProps) => {
   const [compliment, setCompliment] = useState('');
 
     useEffect(() => {
