@@ -9,6 +9,8 @@ import { ChevronLeft, ChevronRight, StickyNote } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
+import { HabitCompanion } from './HabitCompanion';
+
 interface MonthlyProgressProps {
   habits: Habit[];
   getMonthlyData: (habit: Habit, date: Date) => Array<{
@@ -105,7 +107,7 @@ export const MonthlyProgress = ({ habits, getMonthlyData, getNoteForDate }: Mont
                 <div
                   key={idx}
                   className={cn(
-                    "aspect-square rounded-md flex items-center justify-center text-xs font-medium transition-all relative",
+                    "aspect-square rounded-md flex items-center justify-center text-xs font-medium transition-all relative overflow-hidden",
                     day.isCompleted
                       ? "text-white shadow-sm cursor-pointer hover:shadow-md"
                       : "bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 text-red-400 dark:text-red-900/50 cursor-pointer hover:opacity-80"
@@ -115,7 +117,14 @@ export const MonthlyProgress = ({ habits, getMonthlyData, getNoteForDate }: Mont
                   }}
                   onClick={() => hasNote && setSelectedDay({ date: day.date, note })}
                 >
-                  {day.dayNumber}
+                  {day.isCompleted ? (
+                    <HabitCompanion 
+                      completedCount={habits.reduce((acc, h) => acc + h.completedDates.length, 0)} 
+                      size={24}
+                    />
+                  ) : (
+                    day.dayNumber
+                  )}
                   {hasNote && (
                     <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-primary rounded-full flex items-center justify-center">
                       <StickyNote className="w-1.5 h-1.5 text-primary-foreground" />
