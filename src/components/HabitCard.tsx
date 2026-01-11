@@ -111,7 +111,7 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
                 )} 
               />
               <span className={cn(stats.currentStreak > 0 && "text-primary font-medium")}>
-                {stats.currentStreak} day{stats.currentStreak !== 1 ? 's' : ''}
+                {stats.currentStreak}
               </span>
             </div>
             <div className="flex items-center gap-1">
