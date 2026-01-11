@@ -13,7 +13,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { MomentumBank } from '@/components/MomentumBank';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GoalView } from '@/components/GoalView';
@@ -185,7 +185,7 @@ const Index = () => {
         </div>
       </div>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-24">
         {/* Momentum Bank */}
         {habits.length > 0 && (
           <MomentumBank
@@ -197,7 +197,7 @@ const Index = () => {
         )}
 
         {/* Progress Summary */}
-        {habits.length > 0 && (
+        {habits.length > 0 && viewMode === 'today' && (
           <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20">
             <div className="flex items-center justify-between text-primary-foreground">
               <div>
@@ -216,32 +216,6 @@ const Index = () => {
             </div>
           </div>
         )}
-
-        {/* View Tabs */}
-        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-          <TabsList className="grid w-full grid-cols-5 h-11">
-            <TabsTrigger value="today" className="flex items-center gap-2">
-              <LayoutGrid className="w-4 h-4" />
-              <span className="hidden sm:inline">Today</span>
-            </TabsTrigger>
-            <TabsTrigger value="week" className="flex items-center gap-2">
-              <CalendarDays className="w-4 h-4" />
-              <span className="hidden sm:inline">Week</span>
-            </TabsTrigger>
-            <TabsTrigger value="month" className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span className="hidden sm:inline">Month</span>
-            </TabsTrigger>
-            <TabsTrigger value="report" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">Report</span>
-            </TabsTrigger>
-            <TabsTrigger value="goals" className="flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              <span className="hidden sm:inline">Goals</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
 
         {/* Content */}
         {habits.length === 0 && viewMode !== 'goals' ? (
@@ -268,23 +242,27 @@ const Index = () => {
             {viewMode === 'week' && (
               <div className="space-y-6">
                 <StatsOverview habits={habits} getHabitStats={getHabitStats} />
-                <WeeklyProgress habits={habits} getWeeklyData={getWeeklyData} getNoteForDate={getNoteForDate} />
+                <Tabs defaultValue="weekly" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 h-10 mb-4">
+                    <TabsTrigger value="weekly" className="text-xs">Weekly</TabsTrigger>
+                    <TabsTrigger value="monthly" className="text-xs">Monthly</TabsTrigger>
+                    <TabsTrigger value="report" className="text-xs">Report</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="weekly" className="mt-0">
+                    <WeeklyProgress habits={habits} getWeeklyData={getWeeklyData} getNoteForDate={getNoteForDate} />
+                  </TabsContent>
+                  <TabsContent value="monthly" className="mt-0">
+                    <MonthlyProgress habits={habits} getMonthlyData={getMonthlyData} getNoteForDate={getNoteForDate} />
+                  </TabsContent>
+                  <TabsContent value="report" className="mt-0">
+                    <MonthlyReport 
+                      habits={habits} 
+                      getHabitStats={getHabitStats} 
+                      getMonthlyData={getMonthlyData} 
+                    />
+                  </TabsContent>
+                </Tabs>
               </div>
-            )}
-
-            {viewMode === 'month' && (
-              <div className="space-y-6">
-                <StatsOverview habits={habits} getHabitStats={getHabitStats} />
-                <MonthlyProgress habits={habits} getMonthlyData={getMonthlyData} getNoteForDate={getNoteForDate} />
-              </div>
-            )}
-
-            {viewMode === 'report' && (
-              <MonthlyReport 
-                habits={habits} 
-                getHabitStats={getHabitStats} 
-                getMonthlyData={getMonthlyData} 
-              />
             )}
 
             {viewMode === 'goals' && (
@@ -299,6 +277,80 @@ const Index = () => {
           </>
         )}
       </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-50 pb-safe">
+        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-around">
+          <button
+            onClick={() => setViewMode('today')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'today' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <LayoutGrid className="w-6 h-6" />
+            <span className="text-[10px] font-medium">Today</span>
+          </button>
+          <button
+            onClick={() => setViewMode('week')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'week' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <Calendar className="w-6 h-6" />
+            <span className="text-[10px] font-medium">Overview</span>
+          </button>
+          <button
+            onClick={() => setViewMode('goals')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'goals' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <Target className="w-6 h-6" />
+            <span className="text-[10px] font-medium">Goals</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-50 pb-safe">
+        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-around">
+          <button
+            onClick={() => setViewMode('today')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'today' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <LayoutGrid className="w-6 h-6" />
+            <span className="text-[10px] font-medium">Today</span>
+          </button>
+          <button
+            onClick={() => setViewMode('week')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'week' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <Calendar className="w-6 h-6" />
+            <span className="text-[10px] font-medium">Overview</span>
+          </button>
+          <button
+            onClick={() => setViewMode('goals')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'goals' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <Target className="w-6 h-6" />
+            <span className="text-[10px] font-medium">Goals</span>
+          </button>
+        </div>
+      </nav>
+
+
 
       {/* Penguin Celebration */}
       <PenguinCelebration
