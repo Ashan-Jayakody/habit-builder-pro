@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { format } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
+import { useMomentumBank } from '@/hooks/useMomentumBank';
 import { ViewMode } from '@/lib/habitTypes';
 import { AddHabitDialog } from '@/components/AddHabitDialog';
 import { HabitCard } from '@/components/HabitCard';
@@ -10,6 +11,7 @@ import { MonthlyReport } from '@/components/MonthlyReport';
 import { StatsOverview } from '@/components/StatsOverview';
 import { EmptyState } from '@/components/EmptyState';
 import { SettingsMenu } from '@/components/SettingsMenu';
+import { MomentumBank } from '@/components/MomentumBank';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle } from 'lucide-react';
@@ -61,11 +63,49 @@ const Index = () => {
 
   useNotifications(habits, isHabitCompletedOnDate);
 
+  // Momentum Bank hook
+  const {
+    momentumPoints,
+    currentStreak,
+    freezePotential,
+    freezesUsed,
+    awardPoints,
+    updateStreak,
+    resetMomentum,
+  } = useMomentumBank(habits, isHabitCompletedOnDate);
+
   // Check if all habits are completed to trigger celebration
   const today = new Date();
   const todayStr = format(today, 'yyyy-MM-dd');
   const completedToday = habits.filter(h => isHabitCompletedOnDate(h, today)).length;
   const allHabitsCompleted = habits.length > 0 && completedToday === habits.length;
+  const prevCompletedRef = useRef(completedToday);
+
+  // Track habit completions and award momentum points
+  useEffect(() => {
+    if (completedToday > prevCompletedRef.current) {
+      // A habit was just completed - award points
+      awardPoints(10);
+    }
+    prevCompletedRef.current = completedToday;
+  }, [completedToday, awardPoints]);
+
+  // Update streak when all habits completed for the day
+  const hasAwardedStreakToday = useRef(false);
+  useEffect(() => {
+    if (allHabitsCompleted && !hasAwardedStreakToday.current) {
+      updateStreak(true);
+      hasAwardedStreakToday.current = true;
+    }
+    // Reset the ref when date changes
+    const checkDate = localStorage.getItem('streak_awarded_date');
+    if (checkDate !== todayStr) {
+      hasAwardedStreakToday.current = false;
+      if (allHabitsCompleted) {
+        localStorage.setItem('streak_awarded_date', todayStr);
+      }
+    }
+  }, [allHabitsCompleted, todayStr, updateStreak]);
 
   useEffect(() => {
     if (allHabitsCompleted && lastCelebrationDate !== todayStr) {
@@ -94,6 +134,9 @@ const Index = () => {
     localStorage.removeItem('habits-tracker-data');
     localStorage.removeItem('goals-tracker-data');
     localStorage.removeItem('last_celebration_date');
+    localStorage.removeItem('momentum-bank-data');
+    localStorage.removeItem('streak_awarded_date');
+    resetMomentum();
     window.location.reload();
   };
 
@@ -142,6 +185,16 @@ const Index = () => {
       </div>
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* Momentum Bank */}
+        {habits.length > 0 && (
+          <MomentumBank
+            momentumPoints={momentumPoints}
+            currentStreak={currentStreak}
+            freezePotential={freezePotential}
+            freezesUsed={freezesUsed}
+          />
+        )}
+
         {/* Progress Summary */}
         {habits.length > 0 && (
           <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20">
