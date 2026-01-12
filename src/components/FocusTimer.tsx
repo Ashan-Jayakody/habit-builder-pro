@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RotateCcw, Sparkles } from 'lucide-react';
+import { Play, Pause, RotateCcw, Sparkles, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FocusTimerProps {
@@ -30,7 +30,7 @@ export const FocusTimer = ({
   const hasCompletedRef = useRef(false);
 
   const progress = ((POMODORO_DURATION - timeLeft) / POMODORO_DURATION) * 100;
-  const circumference = 2 * Math.PI * 120; // radius = 120
+  const circumference = 2 * Math.PI * 135; // radius = 135
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   const minutes = Math.floor(timeLeft / 60);
@@ -51,7 +51,7 @@ export const FocusTimer = ({
       // Reset for next time
       setTimeLeft(POMODORO_DURATION);
       hasCompletedRef.current = false;
-    }, 3500);
+    }, 4000);
   }, [onComplete, onClose]);
 
   useEffect(() => {
@@ -94,55 +94,66 @@ export const FocusTimer = ({
   };
 
   // Generate confetti particles
-  const confettiParticles = Array.from({ length: 50 }, (_, i) => ({
+  const confettiParticles = Array.from({ length: 60 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
-    delay: Math.random() * 0.5,
-    duration: 2 + Math.random() * 2,
+    delay: Math.random() * 0.8,
+    duration: 2.5 + Math.random() * 2,
     color: ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'][Math.floor(Math.random() * 6)],
   }));
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-slate-700 text-white overflow-y-auto z-[200]">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl sm:text-2xl font-bold flex items-center justify-center gap-2">
-            <span className="text-2xl sm:text-3xl">{habitEmoji}</span>
-            <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-              Focus Mode
-            </span>
-          </DialogTitle>
-          <p className="text-center text-slate-400 text-sm">{habitName}</p>
-        </DialogHeader>
+      <DialogContent className="p-0 border-none bg-black/95 text-white max-w-full h-[100dvh] rounded-none sm:rounded-none flex flex-col items-center justify-between z-[200] focus:outline-none">
+        
+        {/* Top Header/Dismiss bar */}
+        <div className="w-full flex items-center justify-between px-6 pt-12 pb-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => handleOpenChange(false)}
+            className="text-white/40 hover:text-white hover:bg-white/10"
+          >
+            <ChevronDown className="w-8 h-8" />
+          </Button>
+          <div className="flex flex-col items-center">
+            <span className="text-xs uppercase tracking-widest text-white/40 font-bold mb-1">Focusing On</span>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{habitEmoji}</span>
+              <span className="font-semibold">{habitName}</span>
+            </div>
+          </div>
+          <div className="w-10" /> {/* Spacer */}
+        </div>
 
-        <div className="relative flex flex-col items-center py-4 sm:py-8">
+        <div className="flex-1 w-full flex flex-col items-center justify-center relative overflow-hidden px-6">
+          
           {/* Confetti Animation */}
           <AnimatePresence>
             {showConfetti && (
-              <>
+              <div className="absolute inset-0 pointer-events-none z-50">
                 {confettiParticles.map((particle) => (
                   <motion.div
                     key={particle.id}
                     initial={{ 
                       opacity: 1, 
-                      y: 0, 
+                      y: "100%", 
                       x: `${particle.x}%`,
                       scale: 0
                     }}
                     animate={{ 
                       opacity: [1, 1, 0],
-                      y: [0, -200, -400],
-                      x: `${particle.x + (Math.random() - 0.5) * 40}%`,
-                      scale: [0, 1, 0.5],
-                      rotate: [0, 360, 720],
+                      y: ["100%", "-20%", "-120%"],
+                      x: `${particle.x + (Math.random() - 0.5) * 50}%`,
+                      scale: [0, 1.2, 0.6],
+                      rotate: [0, 360, 1080],
                     }}
-                    exit={{ opacity: 0 }}
                     transition={{ 
                       duration: particle.duration, 
                       delay: particle.delay,
                       ease: "easeOut"
                     }}
-                    className="absolute top-1/2 w-3 h-3 rounded-full"
+                    className="absolute w-3 h-3 rounded-sm"
                     style={{ backgroundColor: particle.color }}
                   />
                 ))}
@@ -150,117 +161,123 @@ export const FocusTimer = ({
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
-                  className="absolute inset-0 flex items-center justify-center z-10"
+                  className="absolute inset-0 flex items-center justify-center"
                 >
-                  <div className="text-center">
+                  <div className="text-center px-8 py-12 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20">
                     <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ repeat: Infinity, duration: 0.5 }}
+                      animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
+                      transition={{ repeat: Infinity, duration: 0.8 }}
                     >
-                      <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-amber-400 mx-auto mb-2" />
+                      <Sparkles className="w-20 h-20 text-yellow-400 mx-auto mb-4" />
                     </motion.div>
-                    <p className="text-xl sm:text-2xl font-bold text-white">Session Complete!</p>
-                    <p className="text-amber-400 mt-1">Habit marked as done 🎉</p>
+                    <h2 className="text-3xl font-black text-white mb-2">Well Done!</h2>
+                    <p className="text-white/60 text-lg">Daily goal achieved</p>
                   </div>
                 </motion.div>
-              </>
+              </div>
             )}
           </AnimatePresence>
 
-          {/* Circular Progress Ring */}
-          <div className={cn("relative scale-75 sm:scale-100", showConfetti && "opacity-20")}>
-            <svg width="280" height="280" className="transform -rotate-90 max-w-full">
-              {/* Background circle */}
+          {/* Large Progress Indicator */}
+          <div className={cn("relative flex items-center justify-center transition-all duration-700", showConfetti && "scale-110 opacity-0")}>
+            
+            {/* Soft Glow */}
+            <div 
+              className="absolute w-[320px] h-[320px] rounded-full blur-[80px] opacity-20 animate-pulse"
+              style={{ backgroundColor: habitColor }}
+            />
+
+            <svg width="340" height="340" className="transform -rotate-90 relative z-10">
               <circle
-                cx="140"
-                cy="140"
-                r="120"
+                cx="170"
+                cy="170"
+                r="150"
                 fill="none"
-                stroke="rgba(255,255,255,0.1)"
-                strokeWidth="12"
+                stroke="rgba(255,255,255,0.05)"
+                strokeWidth="4"
               />
-              {/* Progress circle */}
               <motion.circle
-                cx="140"
-                cy="140"
-                r="120"
+                cx="170"
+                cy="170"
+                r="135"
                 fill="none"
                 stroke={habitColor}
-                strokeWidth="12"
+                strokeWidth="10"
                 strokeLinecap="round"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
                 initial={false}
                 animate={{ strokeDashoffset }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="drop-shadow-lg"
+                transition={{ duration: 0.5, ease: "linear" }}
                 style={{ 
-                  filter: `drop-shadow(0 0 20px ${habitColor}50)` 
+                  filter: `drop-shadow(0 0 12px ${habitColor}80)` 
                 }}
               />
             </svg>
 
             {/* Time Display */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <motion.span 
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+              <motion.div 
                 key={timeLeft}
-                initial={{ scale: 0.8, opacity: 0.5 }}
+                initial={{ scale: 0.9, opacity: 0.8 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="text-5xl sm:text-6xl font-mono font-bold tracking-wider"
+                className="text-8xl font-black font-mono tabular-nums tracking-tighter text-white"
               >
-                {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-              </motion.span>
-              <span className="text-slate-400 text-sm mt-2">
-                {isRunning ? 'Focus in progress...' : 'Ready to focus'}
-              </span>
+                {String(minutes).padStart(2, '0')}
+                <span className={cn("inline-block", isRunning && "animate-pulse")}>:</span>
+                {String(seconds).padStart(2, '0')}
+              </motion.div>
+              <div className="h-6 mt-4">
+                <p className="text-white/40 text-sm font-medium tracking-widest uppercase">
+                  {isRunning ? 'Deep Work' : 'Paused'}
+                </p>
+              </div>
             </div>
           </div>
-
-          {/* Controls */}
-          {!showConfetti && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-4 mt-4 sm:mt-8"
-            >
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleReset}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-slate-600 bg-slate-800/50 hover:bg-slate-700 text-white"
-              >
-                <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
-              </Button>
-
-              <Button
-                onClick={handlePlayPause}
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-lg"
-                style={{ 
-                  backgroundColor: habitColor,
-                  boxShadow: `0 10px 40px -10px ${habitColor}80`
-                }}
-              >
-                {isRunning ? (
-                  <Pause className="w-6 h-6 sm:w-7 sm:h-7" />
-                ) : (
-                  <Play className="w-6 h-6 sm:w-7 sm:h-7 ml-1" />
-                )}
-              </Button>
-
-              <div className="w-10 h-10 sm:w-12 sm:h-12" /> {/* Spacer for symmetry */}
-            </motion.div>
-          )}
-
-          {/* Progress indicator */}
-          {!showConfetti && (
-            <div className="mt-4 sm:mt-6 text-center">
-              <p className="text-xs text-slate-500">
-                {Math.round(progress)}% complete
-              </p>
-            </div>
-          )}
         </div>
+
+        {/* Bottom Controls */}
+        <div className="w-full px-8 pb-20 flex flex-col items-center">
+          <div className="flex items-center justify-center gap-10">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleReset}
+              className="w-14 h-14 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 transition-all active:scale-90"
+            >
+              <RotateCcw className="w-6 h-6" />
+            </Button>
+
+            <Button
+              onClick={handlePlayPause}
+              className="w-24 h-24 rounded-full text-white shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] transition-all active:scale-95 flex items-center justify-center"
+              style={{ 
+                backgroundColor: isRunning ? 'rgba(255,255,255,0.1)' : habitColor,
+                border: isRunning ? '1px solid rgba(255,255,255,0.2)' : 'none'
+              }}
+            >
+              {isRunning ? (
+                <Pause className="w-10 h-10" fill="currentColor" />
+              ) : (
+                <Play className="w-10 h-10 ml-1.5" fill="currentColor" />
+              )}
+            </Button>
+
+            <div className="w-14 h-14" /> {/* Symmetry spacer */}
+          </div>
+          
+          <div className="mt-12 w-full max-w-[200px] h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-white/20"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+        </div>
+
       </DialogContent>
     </Dialog>
   );
+};
 };
