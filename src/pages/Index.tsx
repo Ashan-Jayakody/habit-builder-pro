@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
 import { useMomentumBank } from '@/hooks/useMomentumBank';
@@ -129,9 +130,12 @@ const Index = () => {
 
   useEffect(() => {
     if (allHabitsCompleted && lastCelebrationDate !== todayStr) {
-      // setShowCelebration(true);
+      setShowCelebration(true);
       setLastCelebrationDate(todayStr);
       localStorage.setItem('last_celebration_date', todayStr);
+      
+      // Auto-hide celebration after some time
+      setTimeout(() => setShowCelebration(false), 5000);
     }
   }, [allHabitsCompleted, lastCelebrationDate, todayStr]);
 
@@ -175,6 +179,34 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Celebration Popup */}
+      <AnimatePresence>
+        {showCelebration && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="fixed inset-x-4 top-24 z-[150] flex justify-center pointer-events-none"
+          >
+            <div className="bg-white dark:bg-slate-900 border border-primary/20 shadow-2xl rounded-3xl p-6 flex items-center gap-4 max-w-md w-full pointer-events-auto">
+              <div className="h-16 w-16 shrink-0 bg-primary/10 rounded-2xl flex items-center justify-center">
+                <HabitCompanion completedCount={habits.length} size={48} isCelebrating={true} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-foreground">Amazing Job! 🌟</h3>
+                <p className="text-sm text-muted-foreground">You've smashed all your goals for today. Keep this momentum going!</p>
+              </div>
+              <button 
+                onClick={() => setShowCelebration(false)}
+                className="p-2 hover:bg-muted rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <header className={cn(
         "sticky top-0 z-[100] bg-background/80 backdrop-blur-md border-b border-border w-full transition-all duration-300",
@@ -228,26 +260,26 @@ const Index = () => {
           />
         )}
 
-        {/* Progress Summary */}
-        {habits.length > 0 && viewMode === 'today' && (
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20">
-            <div className="flex items-center justify-between text-primary-foreground">
-              <div>
-                <p className="text-sm opacity-90">Today's Progress</p>
-                <p className="text-3xl font-bold">
-                  {completedToday} / {habits.length}
-                </p>
+            {/* Progress Summary */}
+            {habits.length > 0 && viewMode === 'today' && (
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20">
+                <div className="flex items-center justify-between text-primary-foreground">
+                  <div>
+                    <p className="text-sm opacity-90">Today's Progress</p>
+                    <p className="text-3xl font-bold">
+                      {completedToday} / {habits.length}
+                    </p>
+                  </div>
+                  <div className="w-16 h-16 rounded-full bg-white/70 flex items-center justify-center shadow-sm overflow-hidden p-1">
+                    <HabitCompanion 
+                      completedCount={completedToday} 
+                      size={64} 
+                      isCelebrating={showCelebration}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="w-16 h-16 rounded-full bg-white/70 flex items-center justify-center shadow-sm overflow-hidden p-1">
-                <HabitCompanion 
-                  completedCount={completedToday} 
-                  size={64} 
-                  isCelebrating={false}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+            )}
 
         {/* Content */}
         {habits.length === 0 && viewMode !== 'goals' ? (
