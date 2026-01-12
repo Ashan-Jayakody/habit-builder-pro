@@ -112,23 +112,25 @@ const Index = () => {
   // Update streak when all habits completed for the day
   const hasAwardedStreakToday = useRef(false);
   useEffect(() => {
-    if (allHabitsCompleted && !hasAwardedStreakToday.current) {
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const checkDate = localStorage.getItem('streak_awarded_date');
+
+    if (allHabitsCompleted && checkDate !== todayStr && !hasAwardedStreakToday.current) {
       updateStreak(true);
       hasAwardedStreakToday.current = true;
+      localStorage.setItem('streak_awarded_date', todayStr);
+      
+      toast.success("Congratulations! You've completed all your habits for today! 🎉", {
+        duration: 5000,
+        description: "Keep the momentum going!",
+      });
     }
-    // Reset the ref when date changes
-    const checkDate = localStorage.getItem('streak_awarded_date');
-    if (checkDate !== todayStr) {
+
+    // Reset ref when date changes
+    if (checkDate && checkDate !== todayStr) {
       hasAwardedStreakToday.current = false;
-      if (allHabitsCompleted) {
-        localStorage.setItem('streak_awarded_date', todayStr);
-        toast.success("Congratulations! You've completed all your habits for today! 🎉", {
-          duration: 5000,
-          description: "Keep the momentum going!",
-        });
-      }
     }
-  }, [allHabitsCompleted, todayStr, updateStreak]);
+  }, [allHabitsCompleted, updateStreak]);
 
   useEffect(() => {
     if (allHabitsCompleted && lastCelebrationDate !== todayStr) {
