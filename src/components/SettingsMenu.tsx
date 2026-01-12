@@ -120,37 +120,28 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-          <SheetHeader>
+          <SheetHeader className="flex flex-row items-center justify-between space-y-0 pr-6">
             <SheetTitle>Settings</SheetTitle>
           </SheetHeader>
           <div className="flex flex-col h-[calc(100vh-80px)]">
             <ScrollArea className="flex-1 pr-4">
               <div className="space-y-6 py-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label className="text-base font-medium">Change Name</Label>
-                      <p className="text-sm text-muted-foreground">Update your display name</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setNewName(userName);
-                        setShowNameDialog(true);
-                      }}
-                    >
-                      <User className="h-5 w-5" />
-                    </Button>
-                  </div>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      setNewName(userName);
+                      setShowNameDialog(true);
+                    }}
+                    className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-accent transition-colors group"
+                  >
+                    <Label className="text-base font-medium cursor-pointer">Change Name</Label>
+                    <User className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </button>
 
                   <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label className="text-base font-medium">Dark Mode</Label>
-                      <p className="text-sm text-muted-foreground">Toggle dark mode theme</p>
-                    </div>
+                  <div className="flex items-center justify-between p-2">
+                    <Label className="text-base font-medium">Dark Mode</Label>
                     <div className="flex items-center gap-2">
                       {theme === 'dark' ? (
                         <Moon className="h-4 w-4 text-muted-foreground" />
@@ -166,12 +157,9 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
 
                   <Separator />
 
-                  <div className="space-y-3">
-                    <div className="space-y-0.5">
-                      <Label className="text-base font-medium">Theme Color</Label>
-                      <p className="text-sm text-muted-foreground">Choose your favorite color</p>
-                    </div>
-                    <div className="flex flex-wrap gap-3">
+                  <div className="space-y-3 p-2">
+                    <Label className="text-base font-medium">Theme Color</Label>
+                    <div className="flex flex-wrap gap-3 mt-1">
                       {(Object.keys(themeColors) as ThemeColor[]).map((color) => (
                         <button
                           key={color}
@@ -189,36 +177,23 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
 
                   <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label className="text-base font-medium">Yearly Stats</Label>
-                      <p className="text-sm text-muted-foreground">View your progress this year</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setShowStatsDialog(true)}
-                    >
-                      <TrendingUp className="h-5 w-5" />
-                    </Button>
-                  </div>
+                  <button
+                    onClick={() => setShowStatsDialog(true)}
+                    className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-accent transition-colors group"
+                  >
+                    <Label className="text-base font-medium cursor-pointer">Yearly Stats</Label>
+                    <TrendingUp className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </button>
 
                   <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label className="text-base font-medium text-destructive">Reset All Data</Label>
-                      <p className="text-sm text-muted-foreground">Delete all habits and goals</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => setShowResetDialog(true)}
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
-                  </div>
+                  <button
+                    onClick={() => setShowResetDialog(true)}
+                    className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-accent transition-colors group"
+                  >
+                    <Label className="text-base font-medium text-destructive cursor-pointer">Reset All Data</Label>
+                    <Trash2 className="h-5 w-5 text-destructive/70 group-hover:text-destructive transition-colors" />
+                  </button>
                 </div>
               </div>
             </ScrollArea>
