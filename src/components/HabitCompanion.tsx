@@ -10,7 +10,7 @@ interface HabitCompanionProps {
 export const HabitCompanion = ({ completedCount, className, size = 64, isCelebrating = false }: HabitCompanionProps) => {
   // Stages: Seed (< 6), Sprout (6-10), Tree (> 10)
   const getStage = () => {
-    if (completedCount < 6) return 'seed';
+    if (completedCount <= 5) return 'seed';
     if (completedCount <= 10) return 'sprout';
     return 'tree';
   };
