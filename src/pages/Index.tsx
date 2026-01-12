@@ -2,12 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { format } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
 import { useMomentumBank } from '@/hooks/useMomentumBank';
-import { useHaptics } from '@/hooks/useHaptics';
 import { ViewMode } from '@/lib/habitTypes';
-import { AddHabitDialog, AddHabitDialogRef } from '@/components/AddHabitDialog';
-import { SwipeableHabitCard } from '@/components/SwipeableHabitCard';
-import { PullToRefresh } from '@/components/PullToRefresh';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
+import { AddHabitDialog } from '@/components/AddHabitDialog';
+import { HabitCard } from '@/components/HabitCard';
 import { WeeklyProgress } from '@/components/WeeklyProgress';
 import { MonthlyProgress } from '@/components/MonthlyProgress';
 import { MonthlyReport } from '@/components/MonthlyReport';
@@ -15,8 +12,9 @@ import { StatsOverview } from '@/components/StatsOverview';
 import { EmptyState } from '@/components/EmptyState';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { MomentumBank } from '@/components/MomentumBank';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { LayoutGrid, Calendar, Target, UserCircle } from 'lucide-react';
+import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GoalView } from '@/components/GoalView';
 import { Onboarding } from '@/components/Onboarding';
@@ -63,12 +61,6 @@ const Index = () => {
 
   useNotifications(habits, isHabitCompletedOnDate);
 
-  // Haptics hook
-  const { impact, notification } = useHaptics();
-
-  // Add habit dialog ref for FAB
-  const addHabitDialogRef = useRef<AddHabitDialogRef>(null);
-
   // Momentum Bank hook
   const {
     momentumPoints,
@@ -79,14 +71,6 @@ const Index = () => {
     updateStreak,
     resetMomentum,
   } = useMomentumBank(habits, isHabitCompletedOnDate);
-
-  // Pull to refresh handler
-  const handleRefresh = useCallback(async () => {
-    // Simulate refresh - in a real app this would fetch new data
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    notification('success');
-    toast.success('Refreshed!');
-  }, [notification]);
 
   // Check if all habits are completed to trigger celebration
   const today = new Date();
@@ -163,21 +147,8 @@ const Index = () => {
   const handleNameChange = (newName: string) => {
     localStorage.setItem('user_name', newName);
     setUserName(newName);
-    notification('success');
     toast.success('Name updated successfully!');
   };
-
-  // Handle toggle with haptics
-  const handleToggleHabit = useCallback((habitId: string) => {
-    impact('medium');
-    toggleHabitCompletion(habitId);
-  }, [toggleHabitCompletion, impact]);
-
-  // Handle delete with haptics
-  const handleDeleteHabit = useCallback((habitId: string) => {
-    notification('warning');
-    deleteHabit(habitId);
-  }, [deleteHabit, notification]);
 
   const handleResetAll = () => {
     localStorage.removeItem('habits-tracker-data');
@@ -206,8 +177,8 @@ const Index = () => {
       {/* Header */}
       <header className="sticky top-0 z-[100] bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
               <SettingsMenu
                 userName={userName || 'User'}
                 onNameChange={handleNameChange}
@@ -215,19 +186,21 @@ const Index = () => {
                 habits={habits}
                 goals={goals}
               />
-              <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors">
+              <div className="hidden sm:flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors">
                 <UserCircle className="h-6 w-6" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-none transition-all">
+              <div className="min-w-0">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-none transition-all truncate">
                   Hi, {userName}
                 </h1>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-1 truncate">
                   {format(today, 'EEEE, MMMM d')}
                 </p>
               </div>
             </div>
-            <AddHabitDialog ref={addHabitDialogRef} onAdd={addHabit} showTrigger={false} />
+            <div className="shrink-0">
+              <AddHabitDialog onAdd={addHabit} />
+            </div>
           </div>
         </div>
       </header>
@@ -240,152 +213,130 @@ const Index = () => {
         </div>
       </div>
 
-      <PullToRefresh onRefresh={handleRefresh} className="flex-1">
-        <main className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-24">
-          {/* Momentum Bank */}
-          {habits.length > 0 && viewMode === 'today' && (
-            <MomentumBank
-              momentumPoints={momentumPoints}
-              currentStreak={currentStreak}
-              freezePotential={freezePotential}
-              freezesUsed={freezesUsed}
-            />
-          )}
+      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-24">
+        {/* Momentum Bank */}
+        {habits.length > 0 && viewMode === 'today' && (
+          <MomentumBank
+            momentumPoints={momentumPoints}
+            currentStreak={currentStreak}
+            freezePotential={freezePotential}
+            freezesUsed={freezesUsed}
+          />
+        )}
 
-          {/* Progress Summary */}
-          {habits.length > 0 && viewMode === 'today' && (
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20">
-              <div className="flex items-center justify-between text-primary-foreground">
-                <div>
-                  <p className="text-sm opacity-90">Today's Progress</p>
-                  <p className="text-3xl font-bold">
-                    {completedToday} / {habits.length}
-                  </p>
-                </div>
-                <div className="w-16 h-16 rounded-full bg-white/70 flex items-center justify-center shadow-sm overflow-hidden p-1">
-                  <HabitCompanion 
-                    completedCount={completedToday} 
-                    size={64} 
-                    isCelebrating={false}
-                  />
-                </div>
+        {/* Progress Summary */}
+        {habits.length > 0 && viewMode === 'today' && (
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20">
+            <div className="flex items-center justify-between text-primary-foreground">
+              <div>
+                <p className="text-sm opacity-90">Today's Progress</p>
+                <p className="text-3xl font-bold">
+                  {completedToday} / {habits.length}
+                </p>
+              </div>
+              <div className="w-16 h-16 rounded-full bg-white/70 flex items-center justify-center shadow-sm overflow-hidden p-1">
+                <HabitCompanion 
+                  completedCount={completedToday} 
+                  size={64} 
+                  isCelebrating={false}
+                />
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Content */}
-          {habits.length === 0 && viewMode !== 'goals' ? (
-            <EmptyState />
-          ) : (
-            <>
-              {viewMode === 'today' && (
-                <div className="space-y-3">
-                  {sortedHabits.map((habit) => (
-                    <SwipeableHabitCard
-                      key={habit.id}
-                      habit={habit}
-                      isCompletedToday={isHabitCompletedOnDate(habit, today)}
-                      stats={getHabitStats(habit)}
-                      todayNote={getNoteForDate(habit, today)}
-                      onToggle={() => handleToggleHabit(habit.id)}
-                      onDelete={() => handleDeleteHabit(habit.id)}
-                      onSaveNote={(note) => addNote(habit.id, today, note)}
+        {/* Content */}
+        {habits.length === 0 && viewMode !== 'goals' ? (
+          <EmptyState />
+        ) : (
+          <>
+            {viewMode === 'today' && (
+              <div className="space-y-3">
+                {sortedHabits.map((habit) => (
+                  <HabitCard
+                    key={habit.id}
+                    habit={habit}
+                    isCompletedToday={isHabitCompletedOnDate(habit, today)}
+                    stats={getHabitStats(habit)}
+                    todayNote={getNoteForDate(habit, today)}
+                    onToggle={() => toggleHabitCompletion(habit.id)}
+                    onDelete={() => deleteHabit(habit.id)}
+                    onSaveNote={(note) => addNote(habit.id, today, note)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {viewMode === 'week' && (
+              <div className="space-y-6">
+                <StatsOverview habits={habits} getHabitStats={getHabitStats} />
+                <Tabs defaultValue="weekly" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 h-10 mb-4">
+                    <TabsTrigger value="weekly" className="text-xs">Weekly</TabsTrigger>
+                    <TabsTrigger value="monthly" className="text-xs">Monthly</TabsTrigger>
+                    <TabsTrigger value="report" className="text-xs">Report</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="weekly" className="mt-0">
+                    <WeeklyProgress habits={habits} getWeeklyData={getWeeklyData} getNoteForDate={getNoteForDate} />
+                  </TabsContent>
+                  <TabsContent value="monthly" className="mt-0">
+                    <MonthlyProgress habits={habits} getMonthlyData={getMonthlyData} getNoteForDate={getNoteForDate} />
+                  </TabsContent>
+                  <TabsContent value="report" className="mt-0">
+                    <MonthlyReport 
+                      habits={habits} 
+                      getHabitStats={getHabitStats} 
+                      getMonthlyData={getMonthlyData} 
                     />
-                  ))}
-                </div>
-              )}
+                  </TabsContent>
+                </Tabs>
+              </div>
+            )}
 
-              {viewMode === 'week' && (
-                <div className="space-y-6">
-                  <StatsOverview habits={habits} getHabitStats={getHabitStats} />
-                  <Tabs defaultValue="weekly" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 h-10 mb-4">
-                      <TabsTrigger value="weekly" className="text-xs">Weekly</TabsTrigger>
-                      <TabsTrigger value="monthly" className="text-xs">Monthly</TabsTrigger>
-                      <TabsTrigger value="report" className="text-xs">Report</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="weekly" className="mt-0">
-                      <WeeklyProgress habits={habits} getWeeklyData={getWeeklyData} getNoteForDate={getNoteForDate} />
-                    </TabsContent>
-                    <TabsContent value="monthly" className="mt-0">
-                      <MonthlyProgress habits={habits} getMonthlyData={getMonthlyData} getNoteForDate={getNoteForDate} />
-                    </TabsContent>
-                    <TabsContent value="report" className="mt-0">
-                      <MonthlyReport 
-                        habits={habits} 
-                        getHabitStats={getHabitStats} 
-                        getMonthlyData={getMonthlyData} 
-                      />
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              )}
-
-              {viewMode === 'goals' && (
-                <GoalView
-                  goals={goals}
-                  onAddGoal={addGoal}
-                  onDeleteGoal={deleteGoal}
-                  onToggleDay={toggleGoalDay}
-                  onAddLog={addGoalLog}
-                />
-              )}
-            </>
-          )}
-        </main>
-      </PullToRefresh>
-
-      {/* Floating Action Button */}
-      {viewMode === 'today' && (
-        <FloatingActionButton onClick={() => addHabitDialogRef.current?.open()} />
-      )}
+            {viewMode === 'goals' && (
+              <GoalView
+                goals={goals}
+                onAddGoal={addGoal}
+                onDeleteGoal={deleteGoal}
+                onToggleDay={toggleGoalDay}
+                onAddLog={addGoalLog}
+              />
+            )}
+          </>
+        )}
+      </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-lg border-t border-border z-50 safe-area-inset-bottom">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-around pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-50 pb-safe">
+        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-around">
           <button
-            onClick={() => {
-              impact('light');
-              setViewMode('today');
-            }}
+            onClick={() => setViewMode('today')}
             className={cn(
-              "flex flex-col items-center gap-1 transition-all min-w-16 p-2 rounded-xl",
-              viewMode === 'today' 
-                ? "text-primary bg-primary/10 scale-105" 
-                : "text-muted-foreground active:scale-95"
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'today' ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <LayoutGrid className={cn("w-6 h-6 transition-transform", viewMode === 'today' && "scale-110")} />
+            <LayoutGrid className="w-6 h-6" />
             <span className="text-[10px] font-medium">Today</span>
           </button>
           <button
-            onClick={() => {
-              impact('light');
-              setViewMode('week');
-            }}
+            onClick={() => setViewMode('week')}
             className={cn(
-              "flex flex-col items-center gap-1 transition-all min-w-16 p-2 rounded-xl",
-              viewMode === 'week' 
-                ? "text-primary bg-primary/10 scale-105" 
-                : "text-muted-foreground active:scale-95"
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'week' ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <Calendar className={cn("w-6 h-6 transition-transform", viewMode === 'week' && "scale-110")} />
+            <Calendar className="w-6 h-6" />
             <span className="text-[10px] font-medium">Overview</span>
           </button>
           <button
-            onClick={() => {
-              impact('light');
-              setViewMode('goals');
-            }}
+            onClick={() => setViewMode('goals')}
             className={cn(
-              "flex flex-col items-center gap-1 transition-all min-w-16 p-2 rounded-xl",
-              viewMode === 'goals' 
-                ? "text-primary bg-primary/10 scale-105" 
-                : "text-muted-foreground active:scale-95"
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'goals' ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <Target className={cn("w-6 h-6 transition-transform", viewMode === 'goals' && "scale-110")} />
+            <Target className="w-6 h-6" />
             <span className="text-[10px] font-medium">Goals</span>
           </button>
         </div>
