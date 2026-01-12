@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useImperativeHandle, forwardRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,14 +10,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface AddHabitDialogProps {
   onAdd: (habit: { name: string; emoji: string; color: string; priority: HabitPriority }) => void;
+  showTrigger?: boolean;
 }
 
-export const AddHabitDialog = ({ onAdd }: AddHabitDialogProps) => {
+export interface AddHabitDialogRef {
+  open: () => void;
+}
+
+export const AddHabitDialog = forwardRef<AddHabitDialogRef, AddHabitDialogProps>(({ onAdd, showTrigger = true }, ref) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState(HABIT_EMOJIS[0]);
   const [color, setColor] = useState(HABIT_COLORS[0].value);
   const [priority, setPriority] = useState<HabitPriority>('medium');
+
+  useImperativeHandle(ref, () => ({
+    open: () => setOpen(true),
+  }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,12 +42,14 @@ export const AddHabitDialog = ({ onAdd }: AddHabitDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-primary shadow-sm text-primary-foreground hover:bg-primary/90 transition-all">
-          <Plus className="w-4 h-4 mr-2" />
-          New Habit
-        </Button>
-      </DialogTrigger>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button className="bg-primary shadow-sm text-primary-foreground hover:bg-primary/90 transition-all">
+            <Plus className="w-4 h-4 mr-2" />
+            New Habit
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Create New Habit</DialogTitle>
@@ -130,4 +141,6 @@ export const AddHabitDialog = ({ onAdd }: AddHabitDialogProps) => {
       </DialogContent>
     </Dialog>
   );
-};
+});
+
+AddHabitDialog.displayName = 'AddHabitDialog';
