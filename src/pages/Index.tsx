@@ -77,16 +77,37 @@ const Index = () => {
   const todayStr = format(today, 'yyyy-MM-dd');
   const completedToday = habits.filter(h => isHabitCompletedOnDate(h, today)).length;
   const allHabitsCompleted = habits.length > 0 && completedToday === habits.length;
-  const prevCompletedRef = useRef(completedToday);
 
-  // Track habit completions and award momentum points
-  useEffect(() => {
-    if (completedToday > prevCompletedRef.current) {
-      // A habit was just completed - award points
-      awardPoints(10);
+  // Track which habits have already awarded points today
+  const [awardedHabitIds, setAwardedHabitIds] = useState<string[]>(() => {
+    const stored = localStorage.getItem('awarded_habit_ids');
+    const date = localStorage.getItem('awarded_habit_date');
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    if (date === todayStr && stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return [];
+      }
     }
-    prevCompletedRef.current = completedToday;
-  }, [completedToday, awardPoints]);
+    return [];
+  });
+
+  // Award momentum points only once per habit per day
+  useEffect(() => {
+    const newlyCompletedHabits = habits.filter(h => 
+      isHabitCompletedOnDate(h, today) && !awardedHabitIds.includes(h.id)
+    );
+
+    if (newlyCompletedHabits.length > 0) {
+      const newIds = [...awardedHabitIds, ...newlyCompletedHabits.map(h => h.id)];
+      setAwardedHabitIds(newIds);
+      awardPoints(newlyCompletedHabits.length * 10);
+      
+      localStorage.setItem('awarded_habit_ids', JSON.stringify(newIds));
+      localStorage.setItem('awarded_habit_date', todayStr);
+    }
+  }, [habits, awardedHabitIds, awardPoints, todayStr, isHabitCompletedOnDate]);
 
   // Update streak when all habits completed for the day
   const hasAwardedStreakToday = useRef(false);
