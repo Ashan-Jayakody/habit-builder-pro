@@ -14,7 +14,14 @@ interface FocusTimerProps {
   onComplete: () => void;
 }
 
-const POMODORO_DURATION = 25 * 60; // 25 minutes in seconds
+const POMODORO_OPTIONS = [
+  { label: '5m', value: 5 * 60 },
+  { label: '10m', value: 10 * 60 },
+  { label: '15m', value: 15 * 60 },
+  { label: '25m', value: 25 * 60 },
+  { label: '45m', value: 45 * 60 },
+  { label: '60m', value: 60 * 60 },
+];
 
 export const FocusTimer = ({
   isOpen,
@@ -24,12 +31,13 @@ export const FocusTimer = ({
   habitColor,
   onComplete,
 }: FocusTimerProps) => {
-  const [timeLeft, setTimeLeft] = useState(POMODORO_DURATION);
+  const [duration, setDuration] = useState(25 * 60);
+  const [timeLeft, setTimeLeft] = useState(duration);
   const [isRunning, setIsRunning] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const hasCompletedRef = useRef(false);
 
-  const progress = ((POMODORO_DURATION - timeLeft) / POMODORO_DURATION) * 100;
+  const progress = ((duration - timeLeft) / duration) * 100;
   const circumference = 2 * Math.PI * 135; // radius = 135
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
@@ -49,10 +57,16 @@ export const FocusTimer = ({
       setShowConfetti(false);
       onClose();
       // Reset for next time
-      setTimeLeft(POMODORO_DURATION);
+      setTimeLeft(duration);
       hasCompletedRef.current = false;
     }, 4000);
-  }, [onComplete, onClose]);
+  }, [onComplete, onClose, duration]);
+
+  useEffect(() => {
+    if (!isRunning) {
+      setTimeLeft(duration);
+    }
+  }, [duration, isRunning]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -80,14 +94,14 @@ export const FocusTimer = ({
 
   const handleReset = () => {
     setIsRunning(false);
-    setTimeLeft(POMODORO_DURATION);
+    setTimeLeft(duration);
     hasCompletedRef.current = false;
   };
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setIsRunning(false);
-      setTimeLeft(POMODORO_DURATION);
+      setTimeLeft(duration);
       hasCompletedRef.current = false;
       onClose();
     }
@@ -181,9 +195,9 @@ export const FocusTimer = ({
           {/* Large Progress Indicator */}
           <div className={cn("relative flex items-center justify-center transition-all duration-700", showConfetti && "scale-110 opacity-0")}>
             
-            {/* Soft Glow */}
+            {/* Background Glow - Static */}
             <div 
-              className="absolute w-[320px] h-[320px] rounded-full blur-[80px] opacity-20 animate-pulse"
+              className="absolute w-[320px] h-[320px] rounded-full blur-[80px] opacity-10"
               style={{ backgroundColor: habitColor }}
             />
 
@@ -234,6 +248,32 @@ export const FocusTimer = ({
               </div>
             </div>
           </div>
+
+          {/* Timer Duration Selection */}
+          {!isRunning && !showConfetti && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-12 flex flex-wrap justify-center gap-2"
+            >
+              {POMODORO_OPTIONS.map((option) => (
+                <Button
+                  key={option.value}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDuration(option.value)}
+                  className={cn(
+                    "rounded-full px-4 border transition-all",
+                    duration === option.value 
+                      ? "bg-white/10 border-white/20 text-white" 
+                      : "border-transparent text-white/40 hover:text-white/60"
+                  )}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </motion.div>
+          )}
         </div>
 
         {/* Bottom Controls */}
