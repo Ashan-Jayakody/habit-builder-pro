@@ -104,10 +104,10 @@ export const FocusTimer = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-slate-700 text-white overflow-hidden">
+      <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-slate-700 text-white overflow-y-auto z-[200]">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold flex items-center justify-center gap-2">
-            <span className="text-3xl">{habitEmoji}</span>
+          <DialogTitle className="text-center text-xl sm:text-2xl font-bold flex items-center justify-center gap-2">
+            <span className="text-2xl sm:text-3xl">{habitEmoji}</span>
             <span className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
               Focus Mode
             </span>
@@ -115,7 +115,7 @@ export const FocusTimer = ({
           <p className="text-center text-slate-400 text-sm">{habitName}</p>
         </DialogHeader>
 
-        <div className="relative flex flex-col items-center py-8">
+        <div className="relative flex flex-col items-center py-4 sm:py-8">
           {/* Confetti Animation */}
           <AnimatePresence>
             {showConfetti && (
@@ -157,9 +157,9 @@ export const FocusTimer = ({
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 0.5 }}
                     >
-                      <Sparkles className="w-16 h-16 text-amber-400 mx-auto mb-2" />
+                      <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-amber-400 mx-auto mb-2" />
                     </motion.div>
-                    <p className="text-2xl font-bold text-white">Session Complete!</p>
+                    <p className="text-xl sm:text-2xl font-bold text-white">Session Complete!</p>
                     <p className="text-amber-400 mt-1">Habit marked as done 🎉</p>
                   </div>
                 </motion.div>
@@ -168,8 +168,8 @@ export const FocusTimer = ({
           </AnimatePresence>
 
           {/* Circular Progress Ring */}
-          <div className={cn("relative", showConfetti && "opacity-20")}>
-            <svg width="280" height="280" className="transform -rotate-90">
+          <div className={cn("relative scale-75 sm:scale-100", showConfetti && "opacity-20")}>
+            <svg width="280" height="280" className="transform -rotate-90 max-w-full">
               {/* Background circle */}
               <circle
                 cx="140"
@@ -206,7 +206,7 @@ export const FocusTimer = ({
                 key={timeLeft}
                 initial={{ scale: 0.8, opacity: 0.5 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="text-6xl font-mono font-bold tracking-wider"
+                className="text-5xl sm:text-6xl font-mono font-bold tracking-wider"
               >
                 {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
               </motion.span>
@@ -221,39 +221,39 @@ export const FocusTimer = ({
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-4 mt-8"
+              className="flex items-center gap-4 mt-4 sm:mt-8"
             >
               <Button
                 variant="outline"
                 size="icon"
                 onClick={handleReset}
-                className="w-12 h-12 rounded-full border-slate-600 bg-slate-800/50 hover:bg-slate-700 text-white"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-slate-600 bg-slate-800/50 hover:bg-slate-700 text-white"
               >
-                <RotateCcw className="w-5 h-5" />
+                <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
 
               <Button
                 onClick={handlePlayPause}
-                className="w-16 h-16 rounded-full text-white shadow-lg"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full text-white shadow-lg"
                 style={{ 
                   backgroundColor: habitColor,
                   boxShadow: `0 10px 40px -10px ${habitColor}80`
                 }}
               >
                 {isRunning ? (
-                  <Pause className="w-7 h-7" />
+                  <Pause className="w-6 h-6 sm:w-7 sm:h-7" />
                 ) : (
-                  <Play className="w-7 h-7 ml-1" />
+                  <Play className="w-6 h-6 sm:w-7 sm:h-7 ml-1" />
                 )}
               </Button>
 
-              <div className="w-12 h-12" /> {/* Spacer for symmetry */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12" /> {/* Spacer for symmetry */}
             </motion.div>
           )}
 
           {/* Progress indicator */}
           {!showConfetti && (
-            <div className="mt-6 text-center">
+            <div className="mt-4 sm:mt-6 text-center">
               <p className="text-xs text-slate-500">
                 {Math.round(progress)}% complete
               </p>
