@@ -3,6 +3,8 @@ export interface HabitNote {
   note: string;
 }
 
+export type HabitPriority = 'low' | 'medium' | 'high';
+
 export interface Habit {
   id: string;
   name: string;
@@ -11,6 +13,7 @@ export interface Habit {
   createdAt: string;
   completedDates: string[];
   notes: HabitNote[];
+  priority?: HabitPriority;
 }
 
 export interface HabitStats {
@@ -37,18 +40,18 @@ export interface Goal {
 }
 
 export const HABIT_COLORS = [
-  { name: 'Coral', value: 'hsl(16, 85%, 60%)' },
-  { name: 'Amber', value: 'hsl(28, 95%, 65%)' },
-  { name: 'Green', value: 'hsl(142, 70%, 45%)' },
-  { name: 'Purple', value: 'hsl(280, 60%, 65%)' },
-  { name: 'Blue', value: 'hsl(210, 80%, 55%)' },
-  { name: 'Pink', value: 'hsl(340, 75%, 60%)' },
-  { name: 'Teal', value: 'hsl(175, 70%, 45%)' },
-  { name: 'Indigo', value: 'hsl(245, 70%, 60%)' },
-  { name: 'Rose', value: 'hsl(350, 80%, 65%)' },
-  { name: 'Lime', value: 'hsl(85, 70%, 50%)' },
-  { name: 'Cyan', value: 'hsl(190, 85%, 50%)' },
-  { name: 'Orange', value: 'hsl(35, 90%, 55%)' },
+  { name: 'Sky', value: 'hsl(199, 89%, 48%)' },
+  { name: 'Sage', value: 'hsl(158, 35%, 55%)' },
+  { name: 'Lavender', value: 'hsl(255, 45%, 70%)' },
+  { name: 'Mint', value: 'hsl(165, 55%, 60%)' },
+  { name: 'Rose', value: 'hsl(350, 65%, 75%)' },
+  { name: 'Sand', value: 'hsl(35, 30%, 75%)' },
+  { name: 'Slate', value: 'hsl(210, 20%, 65%)' },
+  { name: 'Peach', value: 'hsl(20, 70%, 75%)' },
+  { name: 'Ocean', value: 'hsl(215, 60%, 55%)' },
+  { name: 'Meadow', value: 'hsl(110, 35%, 65%)' },
+  { name: 'Mist', value: 'hsl(190, 30%, 70%)' },
+  { name: 'Dusk', value: 'hsl(230, 35%, 65%)' },
 ];
 
 export const HABIT_EMOJIS = [
