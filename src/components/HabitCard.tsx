@@ -32,9 +32,19 @@ interface HabitCardProps {
   onToggle: () => void;
   onDelete: () => void;
   onSaveNote: (note: string) => void;
+  onFocusModeChange?: (isActive: boolean) => void;
 }
 
-export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle, onDelete, onSaveNote }: HabitCardProps) => {
+export const HabitCard = ({ 
+  habit, 
+  isCompletedToday, 
+  stats, 
+  todayNote, 
+  onToggle, 
+  onDelete, 
+  onSaveNote,
+  onFocusModeChange 
+}: HabitCardProps) => {
   const [justCompleted, setJustCompleted] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState(todayNote);
@@ -67,6 +77,11 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
       setTimeout(() => setJustCompleted(false), 600);
       onToggle();
     }
+  };
+
+  const handleFocusTimerOpen = (open: boolean) => {
+    setFocusTimerOpen(open);
+    onFocusModeChange?.(open);
   };
 
   return (
@@ -141,7 +156,7 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setFocusTimerOpen(true)}
+              onClick={() => handleFocusTimerOpen(true)}
               className="w-8 h-8 transition-colors text-muted-foreground hover:text-primary"
               title="Start Focus Session"
             >
@@ -219,7 +234,7 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
       {/* Focus Timer Modal */}
       <FocusTimer
         isOpen={focusTimerOpen}
-        onClose={() => setFocusTimerOpen(false)}
+        onClose={() => handleFocusTimerOpen(false)}
         habitName={habit.name}
         habitEmoji={habit.emoji}
         habitColor={habit.color}

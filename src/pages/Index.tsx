@@ -25,6 +25,7 @@ import { HabitCompanion } from '@/components/HabitCompanion';
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('today');
+  const [isFocusModeActive, setIsFocusModeActive] = useState(false);
   const [userName, setUserName] = useState<string | null>(localStorage.getItem('user_name'));
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('user_name'));
   const [showCelebration, setShowCelebration] = useState(false);
@@ -175,7 +176,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-[100] bg-background/80 backdrop-blur-md border-b border-border w-full">
+      <header className={cn(
+        "sticky top-0 z-[100] bg-background/80 backdrop-blur-md border-b border-border w-full transition-all duration-300",
+        isFocusModeActive && "blur-sm pointer-events-none opacity-50"
+      )}>
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
@@ -262,6 +266,7 @@ const Index = () => {
                     onToggle={() => toggleHabitCompletion(habit.id)}
                     onDelete={() => deleteHabit(habit.id)}
                     onSaveNote={(note) => addNote(habit.id, today, note)}
+                    onFocusModeChange={setIsFocusModeActive}
                   />
                 ))}
               </div>
