@@ -122,6 +122,10 @@ const Index = () => {
       hasAwardedStreakToday.current = false;
       if (allHabitsCompleted) {
         localStorage.setItem('streak_awarded_date', todayStr);
+        toast.success("Congratulations! You've completed all your habits for today! 🎉", {
+          duration: 5000,
+          description: "Keep the momentum going!",
+        });
       }
     }
   }, [allHabitsCompleted, todayStr, updateStreak]);
