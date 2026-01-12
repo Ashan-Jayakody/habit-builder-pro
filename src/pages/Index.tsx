@@ -15,7 +15,7 @@ import { SettingsMenu } from '@/components/SettingsMenu';
 import { MomentumBank } from '@/components/MomentumBank';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle } from 'lucide-react';
+import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GoalView } from '@/components/GoalView';
 import { Onboarding } from '@/components/Onboarding';
