@@ -70,15 +70,8 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
   };
 
   return (
-    <Card 
-      className={cn(
-        "p-2 shadow-card transition-all duration-300 group border-2",
-        habit.priority === 'high' ? "border-red-400/50 shadow-red-100/50" : 
-        habit.priority === 'medium' ? "border-amber-300/50 shadow-amber-50/50" : 
-        "border-border/50"
-      )}
-    >
-      <div className="flex items-start gap-3">
+    <Card className="p-4 shadow-card border-border/50 hover:shadow-lg transition-all duration-300 group">
+      <div className="flex items-start gap-4">
         {/* Completion Button */}
         <button
           onClick={handleToggle}
@@ -136,84 +129,82 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
         </div>
 
         {/* Focus Timer Button */}
-        <div className="flex items-center">
-          {!isCompletedToday && (
+        {!isCompletedToday && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setFocusTimerOpen(true)}
+            className="transition-colors text-muted-foreground hover:text-primary"
+            title="Start Focus Session"
+          >
+            <Timer className="w-4 h-4" />
+          </Button>
+        )}
+
+        {/* Note Button */}
+        <Popover open={noteOpen} onOpenChange={handleOpenNote}>
+          <PopoverTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setFocusTimerOpen(true)}
-              className="w-8 h-8 transition-colors text-muted-foreground hover:text-primary"
-              title="Start Focus Session"
+              className="transition-colors text-muted-foreground hover:text-foreground"
             >
-              <Timer className="w-4 h-4" />
+              <StickyNote className={cn("w-4 h-4", todayNote && "text-primary")} />
             </Button>
-          )}
-
-          {/* Note Button */}
-          <Popover open={noteOpen} onOpenChange={handleOpenNote}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8 transition-colors text-muted-foreground hover:text-foreground"
-              >
-                <StickyNote className={cn("w-4 h-4", todayNote && "text-primary")} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80" align="end">
-              <div className="space-y-3">
-                <h4 className="font-medium text-sm">Today's Log Note</h4>
-                <Textarea
-                  placeholder="How did it go? Any thoughts..."
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                  className="resize-none"
-                  rows={3}
-                />
-                <div className="flex gap-2 justify-end">
-                  <Button variant="ghost" size="sm" onClick={() => setNoteOpen(false)}>
-                    <X className="w-4 h-4 mr-1" />
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={handleSaveNote}>
-                    <Save className="w-4 h-4 mr-1" />
-                    Save
-                  </Button>
-                </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-80" align="end">
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm">Today's Log Note</h4>
+              <Textarea
+                placeholder="How did it go? Any thoughts..."
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                className="resize-none"
+                rows={3}
+              />
+              <div className="flex gap-2 justify-end">
+                <Button variant="ghost" size="sm" onClick={() => setNoteOpen(false)}>
+                  <X className="w-4 h-4 mr-1" />
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleSaveNote}>
+                  <Save className="w-4 h-4 mr-1" />
+                  Save
+                </Button>
               </div>
-            </PopoverContent>
-          </Popover>
+            </div>
+          </PopoverContent>
+        </Popover>
 
-          {/* Delete Button */}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8 transition-colors text-muted-foreground hover:text-destructive"
+        {/* Delete Button */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="transition-colors text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete "{habit.name}"?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete this habit and all its tracking data. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={onDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete "{habit.name}"?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete this habit and all its tracking data. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={onDelete}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Focus Timer Modal */}

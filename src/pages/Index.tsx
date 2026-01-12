@@ -21,6 +21,9 @@ import { Onboarding } from '@/components/Onboarding';
 import { quotes } from '@/lib/quotes';
 import { toast } from 'sonner';
 import { useNotifications } from '@/hooks/useNotifications';
+import { PenguinCelebration } from '@/components/PenguinCelebration';
+import { Penguin } from '@/components/Penguin';
+import { Puppy } from '@/components/Puppy';
 import { HabitCompanion } from '@/components/HabitCompanion';
 
 const Index = () => {
@@ -77,64 +80,37 @@ const Index = () => {
   const todayStr = format(today, 'yyyy-MM-dd');
   const completedToday = habits.filter(h => isHabitCompletedOnDate(h, today)).length;
   const allHabitsCompleted = habits.length > 0 && completedToday === habits.length;
+  const prevCompletedRef = useRef(completedToday);
 
-  // Track which habits have already awarded points today
-  const [awardedHabitIds, setAwardedHabitIds] = useState<string[]>(() => {
-    const stored = localStorage.getItem('awarded_habit_ids');
-    const date = localStorage.getItem('awarded_habit_date');
-    const todayStr = format(new Date(), 'yyyy-MM-dd');
-    if (date === todayStr && stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
-
-  // Award momentum points only once per habit per day
+  // Track habit completions and award momentum points
   useEffect(() => {
-    const newlyCompletedHabits = habits.filter(h => 
-      isHabitCompletedOnDate(h, today) && !awardedHabitIds.includes(h.id)
-    );
-
-    if (newlyCompletedHabits.length > 0) {
-      const newIds = [...awardedHabitIds, ...newlyCompletedHabits.map(h => h.id)];
-      setAwardedHabitIds(newIds);
-      awardPoints(newlyCompletedHabits.length * 10);
-      
-      localStorage.setItem('awarded_habit_ids', JSON.stringify(newIds));
-      localStorage.setItem('awarded_habit_date', todayStr);
+    if (completedToday > prevCompletedRef.current) {
+      // A habit was just completed - award points
+      awardPoints(10);
     }
-  }, [habits, awardedHabitIds, awardPoints, todayStr, isHabitCompletedOnDate]);
+    prevCompletedRef.current = completedToday;
+  }, [completedToday, awardPoints]);
 
   // Update streak when all habits completed for the day
   const hasAwardedStreakToday = useRef(false);
   useEffect(() => {
-    const todayStr = format(new Date(), 'yyyy-MM-dd');
-    const checkDate = localStorage.getItem('streak_awarded_date');
-
-    if (allHabitsCompleted && checkDate !== todayStr && !hasAwardedStreakToday.current) {
+    if (allHabitsCompleted && !hasAwardedStreakToday.current) {
       updateStreak(true);
       hasAwardedStreakToday.current = true;
-      localStorage.setItem('streak_awarded_date', todayStr);
-      
-      toast.success("Congratulations! You've completed all your habits for today! 🎉", {
-        duration: 5000,
-        description: "Keep the momentum going!",
-      });
     }
-
-    // Reset ref when date changes
-    if (checkDate && checkDate !== todayStr) {
+    // Reset the ref when date changes
+    const checkDate = localStorage.getItem('streak_awarded_date');
+    if (checkDate !== todayStr) {
       hasAwardedStreakToday.current = false;
+      if (allHabitsCompleted) {
+        localStorage.setItem('streak_awarded_date', todayStr);
+      }
     }
-  }, [allHabitsCompleted, updateStreak]);
+  }, [allHabitsCompleted, todayStr, updateStreak]);
 
   useEffect(() => {
     if (allHabitsCompleted && lastCelebrationDate !== todayStr) {
-      // setShowCelebration(true);
+      setShowCelebration(true);
       setLastCelebrationDate(todayStr);
       localStorage.setItem('last_celebration_date', todayStr);
     }
@@ -143,7 +119,6 @@ const Index = () => {
   const handleCloseCelebration = useCallback(() => {
     setShowCelebration(false);
   }, []);
-
   const handleOnboardingComplete = (name: string) => {
     localStorage.setItem('user_name', name);
     setUserName(name);
@@ -171,17 +146,10 @@ const Index = () => {
     return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
-  const sortedHabits = [...habits].sort((a, b) => {
-    const priorityWeight = { high: 3, medium: 2, low: 1 };
-    const weightA = priorityWeight[a.priority || 'medium'];
-    const weightB = priorityWeight[b.priority || 'medium'];
-    return weightB - weightA;
-  });
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-[100] bg-background/80 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -210,7 +178,7 @@ const Index = () => {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 pt-4">
-        <div className="bg-primary/10 rounded-xl p-4 border border-primary/20 transition-all duration-300">
+        <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 transition-all duration-300">
           <p className="text-foreground/80 text-sm font-medium text-center leading-relaxed italic">
             "{dailyQuote}"
           </p>
@@ -219,7 +187,7 @@ const Index = () => {
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6 pb-24">
         {/* Momentum Bank */}
-        {habits.length > 0 && viewMode === 'today' && (
+        {habits.length > 0 && (
           <MomentumBank
             momentumPoints={momentumPoints}
             currentStreak={currentStreak}
@@ -238,9 +206,9 @@ const Index = () => {
                   {completedToday} / {habits.length}
                 </p>
               </div>
-              <div className="w-16 h-16 rounded-full bg-white/70 flex items-center justify-center shadow-sm overflow-hidden p-1">
+              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm overflow-hidden p-1">
                 <HabitCompanion 
-                  completedCount={completedToday} 
+                  completedCount={habits.reduce((acc, h) => acc + h.completedDates.length, 0)} 
                   size={64} 
                   isCelebrating={false}
                 />
@@ -256,7 +224,7 @@ const Index = () => {
           <>
             {viewMode === 'today' && (
               <div className="space-y-3">
-                {sortedHabits.map((habit) => (
+                {habits.map((habit) => (
                   <HabitCard
                     key={habit.id}
                     habit={habit}
@@ -345,6 +313,52 @@ const Index = () => {
           </button>
         </div>
       </nav>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-50 pb-safe">
+        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-around">
+          <button
+            onClick={() => setViewMode('today')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'today' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <LayoutGrid className="w-6 h-6" />
+            <span className="text-[10px] font-medium">Today</span>
+          </button>
+          <button
+            onClick={() => setViewMode('week')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'week' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <Calendar className="w-6 h-6" />
+            <span className="text-[10px] font-medium">Overview</span>
+          </button>
+          <button
+            onClick={() => setViewMode('goals')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              viewMode === 'goals' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <Target className="w-6 h-6" />
+            <span className="text-[10px] font-medium">Goals</span>
+          </button>
+        </div>
+      </nav>
+
+
+
+      {/* Penguin Celebration */}
+      <PenguinCelebration
+        isVisible={showCelebration}
+        onClose={handleCloseCelebration}
+        userName={userName || undefined}
+        habits={habits}
+      />
     </div>
   );
 };

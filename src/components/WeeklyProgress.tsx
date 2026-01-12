@@ -77,7 +77,7 @@ export const WeeklyProgress = ({ habits, getWeeklyData, getNoteForDate }: Weekly
                             "aspect-square rounded-md flex items-center justify-center transition-all relative",
                             day.isCompleted
                               ? "shadow-sm cursor-pointer hover:shadow-md"
-                              : "bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 cursor-pointer hover:opacity-80"
+                              : "bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 cursor-pointer hover:opacity-80"
                           )}
                           style={{
                             backgroundColor: day.isCompleted ? habit.color : undefined,

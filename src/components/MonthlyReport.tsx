@@ -3,10 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Habit, HabitStats } from '@/lib/habitTypes';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, parseISO, isAfter, isBefore, isEqual, subMonths, startOfYear } from 'date-fns';
-import { ChevronLeft, ChevronRight, Trophy, Target, Flame, TrendingUp, Award, Calendar, LineChart as ChartIcon } from 'lucide-react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, parseISO, isAfter, isBefore, isEqual } from 'date-fns';
+import { ChevronLeft, ChevronRight, Trophy, Target, Flame, TrendingUp, Award, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface MonthlyReportProps {
   habits: Habit[];
@@ -28,39 +27,6 @@ export const MonthlyReport = ({ habits, getHabitStats, getMonthlyData }: Monthly
   const goToNextMonth = () => {
     setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
-
-  const yearlyData = useMemo(() => {
-    const data = [];
-    const now = new Date();
-    for (let i = 11; i >= 0; i--) {
-      const monthDate = subMonths(now, i);
-      const monthStart = startOfMonth(monthDate);
-      const monthEnd = endOfMonth(monthDate);
-      const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
-      
-      let completions = 0;
-      let possibleCompletions = 0;
-
-      habits.forEach(habit => {
-        daysInMonth.forEach(day => {
-          if (!isAfter(day, now)) {
-            possibleCompletions++;
-            const dateStr = format(day, 'yyyy-MM-dd');
-            if (habit.completedDates.includes(dateStr)) {
-              completions++;
-            }
-          }
-        });
-      });
-
-      const rate = possibleCompletions > 0 ? Math.round((completions / possibleCompletions) * 100) : 0;
-      data.push({
-        name: format(monthDate, 'MMM'),
-        rate: rate,
-      });
-    }
-    return data;
-  }, [habits]);
 
   const monthlyStats = useMemo(() => {
     const start = startOfMonth(currentMonth);
@@ -292,53 +258,6 @@ export const MonthlyReport = ({ habits, getHabitStats, getMonthlyData }: Monthly
               />
             </div>
           ))}
-        </CardContent>
-      </Card>
-
-      {/* Yearly Overview Chart */}
-      <Card className="shadow-card border-border/50">
-        <CardHeader className="pb-3 flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-lg font-semibold">Yearly Overview</CardTitle>
-            <p className="text-xs text-muted-foreground">Completion rate over the last 12 months</p>
-          </div>
-          <ChartIcon className="w-5 h-5 text-muted-foreground" />
-        </CardHeader>
-        <CardContent className="pt-2">
-          <div className="h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={yearlyData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <YAxis 
-                  hide
-                  domain={[0, 100]}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px'
-                  }}
-                  formatter={(value: number) => [`${value}%`, 'Rate']}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="rate" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={3}
-                  dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 2, stroke: 'hsl(var(--background))' }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
         </CardContent>
       </Card>
     </div>
