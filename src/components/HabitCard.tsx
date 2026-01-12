@@ -70,7 +70,14 @@ export const HabitCard = ({ habit, isCompletedToday, stats, todayNote, onToggle,
   };
 
   return (
-    <Card className="p-2 shadow-card border-border/50 hover:shadow-lg transition-all duration-300 group">
+    <Card 
+      className={cn(
+        "p-2 shadow-card transition-all duration-300 group border-2",
+        habit.priority === 'high' ? "border-red-400/50 shadow-red-100/50" : 
+        habit.priority === 'medium' ? "border-amber-300/50 shadow-amber-50/50" : 
+        "border-border/50"
+      )}
+    >
       <div className="flex items-start gap-3">
         {/* Completion Button */}
         <button

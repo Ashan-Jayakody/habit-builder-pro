@@ -165,6 +165,13 @@ const Index = () => {
     return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
+  const sortedHabits = [...habits].sort((a, b) => {
+    const priorityWeight = { high: 3, medium: 2, low: 1 };
+    const weightA = priorityWeight[a.priority || 'medium'];
+    const weightB = priorityWeight[b.priority || 'medium'];
+    return weightB - weightA;
+  });
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -243,7 +250,7 @@ const Index = () => {
           <>
             {viewMode === 'today' && (
               <div className="space-y-3">
-                {habits.map((habit) => (
+                {sortedHabits.map((habit) => (
                   <HabitCard
                     key={habit.id}
                     habit={habit}

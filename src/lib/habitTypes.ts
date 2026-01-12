@@ -3,6 +3,8 @@ export interface HabitNote {
   note: string;
 }
 
+export type HabitPriority = 'low' | 'medium' | 'high';
+
 export interface Habit {
   id: string;
   name: string;
@@ -11,6 +13,7 @@ export interface Habit {
   createdAt: string;
   completedDates: string[];
   notes: HabitNote[];
+  priority?: HabitPriority;
 }
 
 export interface HabitStats {
