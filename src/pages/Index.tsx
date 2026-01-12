@@ -206,7 +206,7 @@ const Index = () => {
               </div>
               <div className="w-16 h-16 rounded-full bg-white/70 flex items-center justify-center shadow-sm overflow-hidden p-1">
                 <HabitCompanion 
-                  completedCount={habits.reduce((acc, h) => acc + h.completedDates.length, 0)} 
+                  completedCount={completedToday} 
                   size={64} 
                   isCelebrating={false}
                 />
