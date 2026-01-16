@@ -59,6 +59,7 @@ const Index = () => {
     deleteGoal,
     toggleGoalDay,
     addGoalLog,
+    toggleHabitFreeze,
   } = useHabits();
 
   useNotifications(habits, isHabitCompletedOnDate);
@@ -71,8 +72,15 @@ const Index = () => {
     freezesUsed,
     awardPoints,
     updateStreak,
+    useFreeze,
     resetMomentum,
   } = useMomentumBank(habits, isHabitCompletedOnDate);
+
+  const handleUseFreeze = (habitId: string) => {
+    toggleHabitFreeze(habitId);
+    useFreeze();
+    toast.success('Streak frozen for this habit!');
+  };
 
   // Check if all habits are completed to trigger celebration
   const today = new Date();
@@ -257,6 +265,8 @@ const Index = () => {
             currentStreak={currentStreak}
             freezePotential={freezePotential}
             freezesUsed={freezesUsed}
+            habits={habits}
+            onUseFreeze={handleUseFreeze}
           />
         )}
 

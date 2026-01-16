@@ -1,14 +1,19 @@
-import { motion } from 'framer-motion';
-import { Coins, Flame, Shield, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Coins, Flame, Shield, Zap, Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Habit } from '@/lib/habitTypes';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface MomentumBankProps {
   momentumPoints: number;
   currentStreak: number;
   freezePotential: number;
   freezesUsed: number;
+  habits: Habit[];
+  onUseFreeze: (habitId: string) => void;
 }
 
 export const MomentumBank = ({
@@ -16,7 +21,12 @@ export const MomentumBank = ({
   currentStreak,
   freezePotential,
   freezesUsed,
+  habits,
+  onUseFreeze,
 }: MomentumBankProps) => {
+  const [showFreezeSelector, setShowFreezeSelector] = useState(false);
+  const todayStr = new Date().toISOString().split('T')[0];
+
   // Calculate progress to next freeze (50 points)
   const pointsToNextFreeze = momentumPoints % 50;
   const progressToNextFreeze = (pointsToNextFreeze / 50) * 100;
@@ -96,7 +106,11 @@ export const MomentumBank = ({
 
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 backdrop-blur-sm"
+              onClick={() => freezePotential > 0 && setShowFreezeSelector(!showFreezeSelector)}
+              className={cn(
+                "p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 backdrop-blur-sm transition-all",
+                freezePotential > 0 ? "cursor-pointer hover:bg-slate-700/60 ring-1 ring-emerald-500/20" : ""
+              )}
             >
               <div className="flex items-center gap-2 mb-1">
                 <Shield className={cn(
@@ -128,6 +142,56 @@ export const MomentumBank = ({
               <p className="text-[10px] text-slate-500">freezes</p>
             </motion.div>
           </div>
+
+          {/* Freeze Selector */}
+          <AnimatePresence>
+            {showFreezeSelector && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-4 relative z-10 overflow-hidden"
+              >
+                <div className="p-4 rounded-xl bg-slate-800/80 border border-emerald-500/30 backdrop-blur-md">
+                  <h4 className="text-sm font-bold text-white mb-3">Choose habit to freeze for today</h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    {habits.map((habit) => {
+                      const isFrozen = habit.frozenDates?.includes(todayStr);
+                      return (
+                        <button
+                          key={habit.id}
+                          disabled={isFrozen}
+                          onClick={() => {
+                            onUseFreeze(habit.id);
+                            setShowFreezeSelector(false);
+                          }}
+                          className={cn(
+                            "flex items-center justify-between p-2 rounded-lg transition-all",
+                            isFrozen 
+                              ? "bg-slate-700/50 opacity-50 cursor-not-allowed" 
+                              : "bg-slate-700/80 hover:bg-slate-600 border border-slate-600/50"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-xl">{habit.emoji}</span>
+                            <span className="text-sm font-medium text-white">{habit.name}</span>
+                          </div>
+                          {isFrozen ? (
+                            <div className="flex items-center gap-1 text-emerald-400 text-[10px] font-bold uppercase">
+                              <Check className="w-3 h-3" />
+                              Frozen
+                            </div>
+                          ) : (
+                            <Shield className="w-4 h-4 text-emerald-500/50" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Tip */}
           <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 relative z-10">

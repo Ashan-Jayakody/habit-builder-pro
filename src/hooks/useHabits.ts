@@ -67,6 +67,21 @@ export const useHabits = () => {
     }));
   }, []);
 
+  const toggleHabitFreeze = useCallback((id: string, date: Date = new Date()) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    setHabits(prev => prev.map(habit => {
+      if (habit.id !== id) return habit;
+      const frozenDates = habit.frozenDates || [];
+      const isFrozen = frozenDates.includes(dateStr);
+      return {
+        ...habit,
+        frozenDates: isFrozen
+          ? frozenDates.filter(d => d !== dateStr)
+          : [...frozenDates, dateStr],
+      };
+    }));
+  }, []);
+
   const isHabitCompletedOnDate = useCallback((habit: Habit, date: Date): boolean => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return habit.completedDates.includes(dateStr);
@@ -111,11 +126,14 @@ export const useHabits = () => {
     let currentStreak = 0;
     const todayStr = format(today, 'yyyy-MM-dd');
     const yesterdayStr = format(new Date(today.getTime() - 86400000), 'yyyy-MM-dd');
+    const frozenDates = habit.frozenDates || [];
     
-    if (habit.completedDates.includes(todayStr) || habit.completedDates.includes(yesterdayStr)) {
-      const startDate = habit.completedDates.includes(todayStr) ? today : new Date(today.getTime() - 86400000);
+    const isActivityOnDate = (dStr: string) => habit.completedDates.includes(dStr) || frozenDates.includes(dStr);
+
+    if (isActivityOnDate(todayStr) || isActivityOnDate(yesterdayStr)) {
+      const startDate = isActivityOnDate(todayStr) ? today : new Date(today.getTime() - 86400000);
       let checkDate = startDate;
-      while (habit.completedDates.includes(format(checkDate, 'yyyy-MM-dd'))) {
+      while (isActivityOnDate(format(checkDate, 'yyyy-MM-dd'))) {
         currentStreak++;
         checkDate = new Date(checkDate.getTime() - 86400000);
       }
@@ -124,14 +142,14 @@ export const useHabits = () => {
     // Longest streak
     let longestStreak = 0;
     let tempStreak = 0;
-    const allDates = [...habit.completedDates].sort();
+    const allActivityDates = Array.from(new Set([...habit.completedDates, ...frozenDates])).sort();
     
-    for (let i = 0; i < allDates.length; i++) {
+    for (let i = 0; i < allActivityDates.length; i++) {
       if (i === 0) {
         tempStreak = 1;
       } else {
-        const prevDate = parseISO(allDates[i - 1]);
-        const currDate = parseISO(allDates[i]);
+        const prevDate = parseISO(allActivityDates[i - 1]);
+        const currDate = parseISO(allActivityDates[i]);
         if (differenceInDays(currDate, prevDate) === 1) {
           tempStreak++;
         } else {
@@ -142,14 +160,18 @@ export const useHabits = () => {
     }
     longestStreak = Math.max(longestStreak, tempStreak);
 
-    // Completion rate (last 30 days)
+    // Completion rate (last 30 days) - Frozen dates count as completions for streak/rate? 
+    // Usually freeze just saves the streak but doesn't count as "completed". 
+    // But for simplicity in UX, let's say it keeps the streak alive. 
+    // The user specifically asked to "freeze streak".
+    
     const thirtyDaysAgo = new Date(today.getTime() - 30 * 86400000);
     const createdDate = parseISO(habit.createdAt);
-    const startDate = isAfter(thirtyDaysAgo, createdDate) ? thirtyDaysAgo : createdDate;
-    const daysToCount = Math.max(1, differenceInDays(today, startDate) + 1);
+    const startRangeDate = isAfter(thirtyDaysAgo, createdDate) ? thirtyDaysAgo : createdDate;
+    const daysToCount = Math.max(1, differenceInDays(today, startRangeDate) + 1);
     const completionsInPeriod = habit.completedDates.filter(d => {
       const date = parseISO(d);
-      return (isAfter(date, startDate) || isEqual(date, startDate)) && (isBefore(date, today) || isEqual(date, today));
+      return (isAfter(date, startRangeDate) || isEqual(date, startRangeDate)) && (isBefore(date, today) || isEqual(date, today));
     }).length;
     const completionRate = Math.round((completionsInPeriod / daysToCount) * 100);
 
@@ -266,5 +288,6 @@ export const useHabits = () => {
     deleteGoal,
     toggleGoalDay,
     addGoalLog,
+    toggleHabitFreeze,
   };
 };

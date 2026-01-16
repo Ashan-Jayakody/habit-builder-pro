@@ -12,6 +12,7 @@ export interface Habit {
   color: string;
   createdAt: string;
   completedDates: string[];
+  frozenDates?: string[];
   notes: HabitNote[];
   priority?: HabitPriority;
 }

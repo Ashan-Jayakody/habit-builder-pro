@@ -55,45 +55,29 @@ export const useMomentumBank = (habits: Habit[], isHabitCompletedOnDate: (habit:
 
       // If more than 1 day has passed, we need to check for missed days
       if (daysSinceLastCheck > 1) {
-        // Multiple days missed - apply freeze for each missed day
-        let newPoints = prev.momentumPoints;
+        // Multiple days missed - streak will reset if days are missed
         let newStreak = prev.currentStreak;
-        let newFreezesUsed = prev.freezesUsed;
-
-        for (let i = 1; i < daysSinceLastCheck; i++) {
-          if (newPoints >= 50) {
-            newPoints -= 50;
-            newFreezesUsed++;
-          } else {
-            newStreak = 0;
-            break;
-          }
+        if (daysSinceLastCheck > 1) {
+          newStreak = 0;
         }
 
         return {
-          momentumPoints: newPoints,
+          ...prev,
           currentStreak: newStreak,
           lastCheckDate: todayStr,
-          freezesUsed: newFreezesUsed,
         };
       }
 
       // Check yesterday specifically
       if (daysSinceLastCheck === 1 && !allCompletedYesterday) {
-        // Missed yesterday - apply freeze or reset
-        if (prev.momentumPoints >= 50) {
+        // Check if any habits were frozen yesterday
+        const anyFrozenYesterday = habits.some(h => h.frozenDates?.includes(yesterdayStr));
+        
+        if (!anyFrozenYesterday) {
           return {
-            momentumPoints: prev.momentumPoints - 50,
-            currentStreak: prev.currentStreak, // Keep streak alive
+            ...prev,
+            currentStreak: 0, // Reset streak if nothing was frozen
             lastCheckDate: todayStr,
-            freezesUsed: prev.freezesUsed + 1,
-          };
-        } else {
-          return {
-            momentumPoints: prev.momentumPoints,
-            currentStreak: 0, // Reset streak
-            lastCheckDate: todayStr,
-            freezesUsed: prev.freezesUsed,
           };
         }
       }
@@ -107,11 +91,19 @@ export const useMomentumBank = (habits: Habit[], isHabitCompletedOnDate: (habit:
     checkMissedDays();
   }, [checkMissedDays]);
 
-  // Award points when a habit is completed
+  // award points when a habit is completed
   const awardPoints = useCallback((points: number = 10) => {
     setMomentumData(prev => ({
       ...prev,
       momentumPoints: prev.momentumPoints + points,
+    }));
+  }, []);
+
+  const useFreeze = useCallback((points: number = 50) => {
+    setMomentumData(prev => ({
+      ...prev,
+      momentumPoints: Math.max(0, prev.momentumPoints - points),
+      freezesUsed: prev.freezesUsed + 1,
     }));
   }, []);
 
@@ -140,6 +132,7 @@ export const useMomentumBank = (habits: Habit[], isHabitCompletedOnDate: (habit:
     freezePotential,
     awardPoints,
     updateStreak,
+    useFreeze,
     resetMomentum,
   };
 };
