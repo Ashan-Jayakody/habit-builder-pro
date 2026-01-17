@@ -24,6 +24,7 @@ interface GoalViewProps {
 export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog }: GoalViewProps) => {
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalDate, setNewGoalDate] = useState('');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<{ goalId: string; date: Date } | null>(null);
   const [logNote, setLogNote] = useState('');
 
@@ -32,6 +33,7 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
       onAddGoal(newGoalName, new Date(newGoalDate));
       setNewGoalName('');
       setNewGoalDate('');
+      setIsAddDialogOpen(false);
     }
   };
 
@@ -47,7 +49,7 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">My Goals</h2>
-        <Dialog>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="w-4 h-4" /> Add Goal
@@ -212,14 +214,16 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                             style={{ left: `${x}px`, top: `${y}px` }}
                           >
                             <button
+                              disabled={!isToday && !isFuture}
                               onClick={() => onToggleDay(goal.id, day)}
                               className={cn(
                                 "w-10 h-10 rounded-full flex items-center justify-center transition-all z-20",
-                                "hover:scale-125 hover:shadow-xl active:scale-95",
+                                (isToday || isFuture) && "hover:scale-125 hover:shadow-xl active:scale-95",
                                 isCompleted 
                                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
                                   : "bg-background border-2 border-muted text-muted-foreground",
-                                isFuture && "opacity-40 border-dashed"
+                                isFuture && "opacity-40 border-dashed",
+                                !isToday && !isFuture && "cursor-not-allowed opacity-60"
                               )}
                             >
                               <Footprints className={cn("w-5 h-5 transition-transform", isCompleted ? "scale-110" : "opacity-40")} />
