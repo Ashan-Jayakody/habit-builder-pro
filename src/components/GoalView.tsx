@@ -197,6 +197,7 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                         const dateStr = format(day, 'yyyy-MM-dd');
                         const isCompleted = goal.completedDays.includes(dateStr);
                         const isFuture = isAfter(startOfDay(day), startOfDay(new Date()));
+                        const isToday = isSameDay(day, new Date());
                         const hasLog = goal.logs.some(l => l.date === dateStr);
                         
                         // Calculate position along the path (sine-like curve)
@@ -211,22 +212,24 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                             style={{ left: `${x}px`, top: `${y}px` }}
                           >
                             <button
-                              disabled={isFuture}
                               onClick={() => onToggleDay(goal.id, day)}
                               className={cn(
                                 "w-10 h-10 rounded-full flex items-center justify-center transition-all z-20",
-                                !isFuture && "hover:scale-125 hover:shadow-xl active:scale-95",
+                                "hover:scale-125 hover:shadow-xl active:scale-95",
                                 isCompleted 
                                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
                                   : "bg-background border-2 border-muted text-muted-foreground",
-                                isFuture && "opacity-40 cursor-not-allowed border-dashed"
+                                isFuture && "opacity-40 border-dashed"
                               )}
                             >
                               <Footprints className={cn("w-5 h-5 transition-transform", isCompleted ? "scale-110" : "opacity-40")} />
                               
                               {/* Checkpoint indicator */}
-                              {idx % 5 === 0 && (
-                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full border-2 border-background animate-pulse" />
+                              {(idx % 5 === 0 || isToday) && (
+                                <div className={cn(
+                                  "absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-background",
+                                  isToday ? "bg-primary animate-ping" : "bg-accent animate-pulse"
+                                )} />
                               )}
                             </button>
                             
@@ -237,11 +240,9 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                disabled={isFuture}
                                 className={cn(
                                   "h-8 w-8 mt-1 rounded-full bg-background shadow-sm border", 
-                                  hasLog ? "text-primary border-primary/30" : "text-muted-foreground/30",
-                                  isFuture && "hidden"
+                                  hasLog ? "text-primary border-primary/30" : "text-muted-foreground/30"
                                 )}
                                 onClick={(e) => {
                                   e.stopPropagation();
