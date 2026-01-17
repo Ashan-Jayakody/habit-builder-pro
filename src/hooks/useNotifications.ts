@@ -13,9 +13,19 @@ export const useNotifications = (habits: any[], isHabitCompletedOnDate: (habit: 
 
   useEffect(() => {
     const checkReminders = () => {
+      const storedPrefs = localStorage.getItem('notification-preferences');
+      const prefs = storedPrefs ? JSON.parse(storedPrefs) : { enabled: true, reminderTime: '20:00' };
+
+      if (!prefs.enabled) return;
+
       const now = new Date();
-      // Only remind in the evening (e.g., after 8 PM)
-      if (now.getHours() >= 20) {
+      const [targetHours, targetMinutes] = prefs.reminderTime.split(':').map(Number);
+      
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+
+      // Check if it's time (within the hour of the target time)
+      if (currentHours === targetHours && currentMinutes >= targetMinutes) {
         const lastReminder = localStorage.getItem('last-habit-reminder');
         const todayStr = now.toDateString();
 
@@ -23,11 +33,10 @@ export const useNotifications = (habits: any[], isHabitCompletedOnDate: (habit: 
           const incompleteHabits = habits.filter(h => !isHabitCompletedOnDate(h, now));
           
           if (incompleteHabits.length > 0) {
-            const title = 'Habit Reminder';
             const body = `You still have ${incompleteHabits.length} habits to complete today!`;
 
             if ('Notification' in window && Notification.permission === 'granted') {
-              new Notification(title, { body, icon: '/favicon.ico' });
+              new Notification('Habit Reminder', { body, icon: '/favicon.ico' });
             } else {
               toast.info(body);
             }
@@ -37,8 +46,7 @@ export const useNotifications = (habits: any[], isHabitCompletedOnDate: (habit: 
       }
     };
 
-    // Check every hour
-    const interval = setInterval(checkReminders, 1000 * 60 * 60);
+    const interval = setInterval(checkReminders, 1000 * 60 * 5); // Check every 5 minutes
     checkReminders();
 
     return () => clearInterval(interval);
