@@ -157,76 +157,119 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                     <span>{totalDays} day journey</span>
                   </div>
 
-                  <div className="mb-6 space-y-2">
+                  <div className="mb-4 space-y-2">
                     <div className="flex justify-between text-xs font-medium">
-                      <span>Progress</span>
+                      <span>Journey Progress</span>
                       <span>{Math.round((goal.completedDays.length / totalDays) * 100)}%</span>
                     </div>
                     <Progress value={(goal.completedDays.length / totalDays) * 100} className="h-2" />
                   </div>
                   
-                  <ScrollArea className="h-32 w-full rounded-md border p-4">
-                    <AnimatePresence>
-                      {isFullyCompleted && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-10 p-4 text-center"
-                        >
-                          <div className="space-y-2">
-                            <PartyPopper className="w-10 h-10 text-primary mx-auto" />
-                            <h3 className="font-bold text-lg">Congratulations!</h3>
-                            <p className="text-sm text-muted-foreground">You've reached your goal! Amazing work!</p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                    <div className="flex flex-wrap gap-4 justify-center">
+                  <div className="relative w-full overflow-x-auto pb-8 pt-4 no-scrollbar">
+                    <div className="relative min-w-[600px] h-[300px]">
+                      <svg
+                        className="absolute inset-0 w-full h-full pointer-events-none"
+                        viewBox="0 0 600 300"
+                        preserveAspectRatio="none"
+                      >
+                        <path
+                          d="M 50 150 C 150 50, 200 250, 300 150 C 400 50, 450 250, 550 150"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          className="text-muted/20"
+                          strokeLinecap="round"
+                        />
+                        <motion.path
+                          d="M 50 150 C 150 50, 200 250, 300 150 C 400 50, 450 250, 550 150"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          className="text-primary"
+                          strokeLinecap="round"
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: goal.completedDays.length / totalDays }}
+                          transition={{ duration: 1.5, ease: "easeInOut" }}
+                        />
+                      </svg>
+
                       {daysArr.map((day, idx) => {
                         const dateStr = format(day, 'yyyy-MM-dd');
                         const isCompleted = goal.completedDays.includes(dateStr);
-                        const hasLog = goal.logs.some(l => l.date === dateStr);
                         const isFuture = isAfter(startOfDay(day), startOfDay(new Date()));
+                        const hasLog = goal.logs.some(l => l.date === dateStr);
                         
+                        // Calculate position along the path (sine-like curve)
+                        const t = idx / (daysArr.length - 1);
+                        const x = 50 + t * 500;
+                        const y = 150 + Math.sin(t * Math.PI * 2) * 80;
+
                         return (
-                          <div key={idx} className="flex flex-col items-center gap-1">
+                          <div
+                            key={idx}
+                            className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 group"
+                            style={{ left: `${x}px`, top: `${y}px` }}
+                          >
                             <button
                               disabled={isFuture}
                               onClick={() => onToggleDay(goal.id, day)}
                               className={cn(
-                                "w-10 h-10 rounded-full flex items-center justify-center transition-all",
-                                !isFuture && "hover:scale-110",
+                                "w-10 h-10 rounded-full flex items-center justify-center transition-all z-20",
+                                !isFuture && "hover:scale-125 hover:shadow-xl active:scale-95",
                                 isCompleted 
-                                  ? "bg-primary text-primary-foreground shadow-lg" 
-                                  : "bg-muted text-muted-foreground hover:bg-muted/80",
-                                isFuture && "opacity-20 cursor-not-allowed grayscale"
+                                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
+                                  : "bg-background border-2 border-muted text-muted-foreground",
+                                isFuture && "opacity-40 cursor-not-allowed border-dashed"
                               )}
                             >
-                              <Footprints className={cn("w-5 h-5", isCompleted ? "fill-current" : "")} />
+                              <Footprints className={cn("w-5 h-5 transition-transform", isCompleted ? "scale-110" : "opacity-40")} />
+                              
+                              {/* Checkpoint indicator */}
+                              {idx % 5 === 0 && (
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full border-2 border-background animate-pulse" />
+                              )}
                             </button>
-                            <span className="text-[10px] text-muted-foreground">{format(day, 'MMM d')}</span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              disabled={isFuture}
-                              className={cn(
-                                "h-6 w-6 mt-1", 
-                                hasLog ? "text-primary" : "text-muted-foreground/30",
-                                isFuture && "opacity-0 pointer-events-none"
+                            
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute top-12 flex flex-col items-center z-30">
+                              <span className="text-[10px] font-bold whitespace-nowrap bg-background/90 px-1.5 py-0.5 rounded shadow-sm border">
+                                {format(day, 'MMM d')}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                disabled={isFuture}
+                                className={cn(
+                                  "h-8 w-8 mt-1 rounded-full bg-background shadow-sm border", 
+                                  hasLog ? "text-primary border-primary/30" : "text-muted-foreground/30",
+                                  isFuture && "hidden"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedDay({ goalId: goal.id, date: day });
+                                  const log = goal.logs.find(l => l.date === dateStr);
+                                  setLogNote(log?.note || '');
+                                }}
+                              >
+                                <MessageSquare className="w-4 h-4" />
+                              </Button>
+                            </div>
+
+                            <AnimatePresence>
+                              {isFullyCompleted && (
+                                <motion.div 
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="absolute -inset-4 pointer-events-none"
+                                >
+                                  <div className="w-full h-full bg-primary/5 rounded-full blur-xl" />
+                                </motion.div>
                               )}
-                              onClick={() => {
-                                setSelectedDay({ goalId: goal.id, date: day });
-                                const log = goal.logs.find(l => l.date === dateStr);
-                                setLogNote(log?.note || '');
-                              }}
-                            >
-                              <MessageSquare className="w-3 h-3" />
-                            </Button>
+                            </AnimatePresence>
                           </div>
                         );
                       })}
                     </div>
-                  </ScrollArea>
+                  </div>
                 </CardContent>
               </Card>
             );
