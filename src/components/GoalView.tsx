@@ -12,7 +12,6 @@ import { Progress } from '@/components/ui/progress';
 import { Footprints, Plus, Trash2, MessageSquare, CheckCircle2, ClipboardList, PartyPopper } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
 
 interface GoalViewProps {
   goals: Goal[];
@@ -31,15 +30,7 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
 
   const handleAddGoal = () => {
     if (newGoalName && newGoalDate) {
-      const selectedDate = new Date(newGoalDate);
-      const today = startOfDay(new Date());
-      
-      if (isBefore(selectedDate, today)) {
-        toast.error("Target date must be in the future");
-        return;
-      }
-
-      onAddGoal(newGoalName, selectedDate);
+      onAddGoal(newGoalName, new Date(newGoalDate));
       setNewGoalName('');
       setNewGoalDate('');
       setIsAddDialogOpen(false);
@@ -83,7 +74,6 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                 <Input
                   id="goal-date"
                   type="date"
-                  min={format(new Date(), 'yyyy-MM-dd')}
                   value={newGoalDate}
                   onChange={(e) => setNewGoalDate(e.target.value)}
                 />

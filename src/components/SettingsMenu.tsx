@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from 'next-themes';
-import { Menu, User, Moon, Sun, Trash2, TrendingUp, Bell, Palette } from 'lucide-react';
+import { Menu, User, Moon, Sun, Trash2, TrendingUp, X, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +24,6 @@ import { format, startOfYear, endOfYear, eachMonthOfInterval, startOfMonth, endO
 import { Habit, Goal } from '@/lib/habitTypes';
 import { useThemeColor, themeColors, ThemeColor } from '@/hooks/use-theme-color';
 import { cn } from '@/lib/utils';
-import { NotificationSettings } from './NotificationSettings';
 
 interface SettingsMenuProps {
   userName: string;
@@ -39,7 +38,6 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showNameDialog, setShowNameDialog] = useState(false);
   const [showStatsDialog, setShowStatsDialog] = useState(false);
-  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [newName, setNewName] = useState(userName);
   const { theme, setTheme } = useTheme();
   const { themeColor, setThemeColor } = useThemeColor();
@@ -142,16 +140,6 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
 
                   <Separator />
 
-                  <button
-                    onClick={() => setShowNotificationSettings(true)}
-                    className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-accent transition-colors group"
-                  >
-                    <Label className="text-base font-medium cursor-pointer">Notifications</Label>
-                    <Bell className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  </button>
-
-                  <Separator />
-
                   <div className="flex items-center justify-between p-2">
                     <Label className="text-base font-medium">Dark Mode</Label>
                     <div className="flex items-center gap-2">
@@ -221,17 +209,6 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
           </div>
         </SheetContent>
       </Sheet>
-
-      <Dialog open={showNotificationSettings} onOpenChange={setShowNotificationSettings}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Notification Settings</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <NotificationSettings />
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
         <DialogContent className="sm:max-w-[400px]">
