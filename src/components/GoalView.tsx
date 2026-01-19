@@ -74,6 +74,7 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                 <Input
                   id="goal-date"
                   type="date"
+                  min={new Date().toISOString().split('T')[0]}
                   value={newGoalDate}
                   onChange={(e) => setNewGoalDate(e.target.value)}
                 />
