@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from 'next-themes';
-import { Menu, User, Moon, Sun, Trash2, TrendingUp, X, Palette } from 'lucide-react';
+import { Menu, User, Moon, Sun, Trash2, TrendingUp, X, Palette, Footprints } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -126,6 +126,39 @@ export const SettingsMenu = ({ userName, onNameChange, onResetAll, habits, goals
           <div className="flex flex-col h-[calc(100vh-80px)]">
             <ScrollArea className="flex-1 pr-4">
               <div className="space-y-6 py-6">
+                <div className="bg-primary/5 rounded-xl p-4 border border-primary/10 mb-2 mx-2">
+                  <h3 className="text-sm font-bold text-primary flex items-center gap-2 mb-3">
+                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                    What's New (v1.2)
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <div className="mt-0.5">
+                        <Footprints className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold">Visual Goal Journeys</p>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          Your goals are now winding pathways. Track progress with daily footsteps!
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="mt-0.5 text-primary">
+                        <span className="text-sm font-bold">❄️</span>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold">Smarter Streak Freezes</p>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          Pick exactly which habit to protect in the Momentum Bank.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator className="mx-2" />
+
                 <div className="space-y-2">
                   <button
                     onClick={() => {
