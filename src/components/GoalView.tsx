@@ -173,41 +173,57 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                       className="relative h-[300px]" 
                       style={{ width: `${Math.max(600, daysArr.length * 60 + 100)}px` }}
                     >
-                      <svg
-                        className="absolute inset-0 w-full h-full pointer-events-none"
-                        viewBox={`0 0 ${Math.max(600, daysArr.length * 60 + 100)} 300`}
-                        preserveAspectRatio="none"
-                      >
-                        <path
-                          d={`M 50 150 ${daysArr.map((_, i) => {
-                            const x = 50 + i * 60;
-                            const y = 150 + Math.sin(i * 0.8) * 60;
-                            return `L ${x} ${y}`;
-                          }).join(' ')}`}
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          className="text-muted/20"
-                          strokeLinecap="round"
-                          strokeJoin="round"
-                        />
-                        <motion.path
-                          d={`M 50 150 ${daysArr.map((_, i) => {
-                            const x = 50 + i * 60;
-                            const y = 150 + Math.sin(i * 0.8) * 60;
-                            return `L ${x} ${y}`;
-                          }).join(' ')}`}
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          className="text-primary"
-                          strokeLinecap="round"
-                          strokeJoin="round"
-                          initial={{ pathLength: 0 }}
-                          animate={{ pathLength: goal.completedDays.length / totalDays }}
-                          transition={{ duration: 1.5, ease: "easeInOut" }}
-                        />
-                      </svg>
+                      {(() => {
+                        // Calculate smooth curve using Bezier path for visual path
+                        const getBezierPath = () => {
+                          if (daysArr.length < 2) return `M 50 150 L 110 150`;
+                          
+                          let d = `M 50 150`;
+                          for (let i = 0; i < daysArr.length - 1; i++) {
+                            const x1 = 50 + i * 60;
+                            const y1 = 150 + Math.sin(i * 0.8) * 60;
+                            const x2 = 50 + (i + 1) * 60;
+                            const y2 = 150 + Math.sin((i + 1) * 0.8) * 60;
+                            
+                            // Control points for a smooth curve
+                            const cp1x = x1 + 30;
+                            const cp1y = y1;
+                            const cp2x = x2 - 30;
+                            const cp2y = y2;
+                            
+                            d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x2} ${y2}`;
+                          }
+                          return d;
+                        };
+
+                        return (
+                          <svg
+                            className="absolute inset-0 w-full h-full pointer-events-none"
+                            viewBox={`0 0 ${Math.max(600, daysArr.length * 60 + 100)} 300`}
+                            preserveAspectRatio="none"
+                          >
+                            <path
+                              d={getBezierPath()}
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              className="text-muted/20"
+                              strokeLinecap="round"
+                            />
+                            <motion.path
+                              d={getBezierPath()}
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              className="text-primary"
+                              strokeLinecap="round"
+                              initial={{ pathLength: 0 }}
+                              animate={{ pathLength: goal.completedDays.length / totalDays }}
+                              transition={{ duration: 1.5, ease: "easeInOut" }}
+                            />
+                          </svg>
+                        );
+                      })()}
 
                       {daysArr.map((day, idx) => {
                         const dateStr = format(day, 'yyyy-MM-dd');
