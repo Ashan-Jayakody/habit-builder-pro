@@ -181,13 +181,13 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                         <path
                           d={`M 50 150 ${daysArr.map((_, i) => {
                             const x = 50 + i * 60;
-                            const y = 150 + Math.sin(i * 0.8) * 60;
+                            const y = 150 + Math.sin(i * 1.0) * 80;
                             const prevX = 50 + (i - 1) * 60;
-                            const prevY = 150 + Math.sin((i - 1) * 0.8) * 60;
+                            const prevY = 150 + Math.sin((i - 1) * 1.0) * 80;
                             if (i === 0) return "";
-                            const cp1x = prevX + 30;
+                            const cp1x = prevX + 25;
                             const cp1y = prevY;
-                            const cp2x = x - 30;
+                            const cp2x = x - 25;
                             const cp2y = y;
                             return `C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x} ${y}`;
                           }).join(' ')}`}
@@ -200,13 +200,13 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                         <motion.path
                           d={`M 50 150 ${daysArr.map((_, i) => {
                             const x = 50 + i * 60;
-                            const y = 150 + Math.sin(i * 0.8) * 60;
+                            const y = 150 + Math.sin(i * 1.0) * 80;
                             const prevX = 50 + (i - 1) * 60;
-                            const prevY = 150 + Math.sin((i - 1) * 0.8) * 60;
+                            const prevY = 150 + Math.sin((i - 1) * 1.0) * 80;
                             if (i === 0) return "";
-                            const cp1x = prevX + 30;
+                            const cp1x = prevX + 25;
                             const cp1y = prevY;
-                            const cp2x = x - 30;
+                            const cp2x = x - 25;
                             const cp2y = y;
                             return `C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x} ${y}`;
                           }).join(' ')}`}
@@ -231,7 +231,7 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                         // Calculate position along the path (sine-like curve) with fixed spacing
                         const stepDistance = 60; // Constant distance between steps
                         const x = 50 + idx * stepDistance;
-                        const y = 150 + Math.sin(idx * 0.8) * 60; // Winding effect based on index
+                        const y = 150 + Math.sin(idx * 1.0) * 80; // Sin wave effect based on index
 
                         return (
                           <div
