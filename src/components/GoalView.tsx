@@ -169,27 +169,40 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                   </div>
                   
                   <div className="relative w-full overflow-x-auto pb-8 pt-4 no-scrollbar">
-                    <div className="relative min-w-[600px] h-[300px]">
+                    <div 
+                      className="relative h-[300px]" 
+                      style={{ width: `${Math.max(600, daysArr.length * 60 + 100)}px` }}
+                    >
                       <svg
                         className="absolute inset-0 w-full h-full pointer-events-none"
-                        viewBox="0 0 600 300"
+                        viewBox={`0 0 ${Math.max(600, daysArr.length * 60 + 100)} 300`}
                         preserveAspectRatio="none"
                       >
                         <path
-                          d="M 50 150 C 150 50, 200 250, 300 150 C 400 50, 450 250, 550 150"
+                          d={`M 50 150 ${daysArr.map((_, i) => {
+                            const x = 50 + i * 60;
+                            const y = 150 + Math.sin(i * 0.8) * 60;
+                            return `L ${x} ${y}`;
+                          }).join(' ')}`}
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="4"
                           className="text-muted/20"
                           strokeLinecap="round"
+                          strokeJoin="round"
                         />
                         <motion.path
-                          d="M 50 150 C 150 50, 200 250, 300 150 C 400 50, 450 250, 550 150"
+                          d={`M 50 150 ${daysArr.map((_, i) => {
+                            const x = 50 + i * 60;
+                            const y = 150 + Math.sin(i * 0.8) * 60;
+                            return `L ${x} ${y}`;
+                          }).join(' ')}`}
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="4"
                           className="text-primary"
                           strokeLinecap="round"
+                          strokeJoin="round"
                           initial={{ pathLength: 0 }}
                           animate={{ pathLength: goal.completedDays.length / totalDays }}
                           transition={{ duration: 1.5, ease: "easeInOut" }}
@@ -203,10 +216,10 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                         const isToday = isSameDay(day, new Date());
                         const hasLog = goal.logs.some(l => l.date === dateStr);
                         
-                        // Calculate position along the path (sine-like curve)
-                        const t = idx / (daysArr.length - 1);
-                        const x = 50 + t * 500;
-                        const y = 150 + Math.sin(t * Math.PI * 2) * 80;
+                        // Calculate position along the path (sine-like curve) with fixed spacing
+                        const stepDistance = 60; // Constant distance between steps
+                        const x = 50 + idx * stepDistance;
+                        const y = 150 + Math.sin(idx * 0.8) * 60; // Winding effect based on index
 
                         return (
                           <div
