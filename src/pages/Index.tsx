@@ -30,6 +30,7 @@ const Index = () => {
   const [userName, setUserName] = useState<string | null>(localStorage.getItem('user_name'));
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('user_name'));
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showGrowthInfo, setShowGrowthInfo] = useState(false);
   const [lastCelebrationDate, setLastCelebrationDate] = useState<string | null>(
     localStorage.getItem('last_celebration_date')
   );
@@ -87,6 +88,9 @@ const Index = () => {
   const todayStr = format(today, 'yyyy-MM-dd');
   const completedToday = habits.filter(h => isHabitCompletedOnDate(h, today)).length;
   const allHabitsCompleted = habits.length > 0 && completedToday === habits.length;
+
+  const currentLevel = habits.length < 6 ? 'Seed' : habits.length <= 10 ? 'Sprout' : 'Tree';
+  const levelEmoji = habits.length < 6 ? '🌱' : habits.length <= 10 ? '🌿' : '🌳';
 
   // Track which habits have already awarded points today
   const [awardedHabitIds, setAwardedHabitIds] = useState<string[]>(() => {
@@ -272,22 +276,76 @@ const Index = () => {
 
             {/* Progress Summary */}
             {habits.length > 0 && viewMode === 'today' && (
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20">
-                <div className="flex items-center justify-between text-primary-foreground">
-                  <div>
-                    <p className="text-sm opacity-90">Today's Progress</p>
-                    <p className="text-3xl font-bold">
-                      {completedToday} / {habits.length}
-                    </p>
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-white/70 flex items-center justify-center shadow-sm overflow-hidden p-1">
-                    <HabitCompanion 
-                      completedCount={completedToday} 
-                      size={64} 
-                      isCelebrating={showCelebration}
-                    />
+              <div className="relative">
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-primary to-accent shadow-lg shadow-primary/20">
+                  <div className="flex items-center justify-between text-primary-foreground">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm opacity-90">Today's Progress</p>
+                        <button 
+                          onClick={() => setShowGrowthInfo(true)}
+                          className="hover:scale-110 transition-transform p-1 rounded-full hover:bg-white/10"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </button>
+                      </div>
+                      <p className="text-3xl font-bold">
+                        {completedToday} / {habits.length}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="w-16 h-16 rounded-full bg-white/70 flex items-center justify-center shadow-sm overflow-hidden p-1">
+                        <HabitCompanion 
+                          completedCount={completedToday} 
+                          size={64} 
+                          isCelebrating={showCelebration}
+                        />
+                      </div>
+                      <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full">
+                        {levelEmoji} {currentLevel}
+                      </span>
+                    </div>
                   </div>
                 </div>
+
+                <AnimatePresence>
+                  {showGrowthInfo && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                      className="absolute left-0 right-0 top-full mt-2 z-[110]"
+                    >
+                      <div className="bg-white dark:bg-slate-900 border border-primary/20 shadow-2xl rounded-2xl p-4 overflow-hidden">
+                        <div className="flex justify-between items-center mb-3">
+                          <h4 className="font-bold flex items-center gap-2">
+                            <span className="p-1.5 bg-primary/10 rounded-lg">🌱</span>
+                            Growth Stages
+                          </h4>
+                          <button onClick={() => setShowGrowthInfo(false)} className="p-1 hover:bg-muted rounded-full">
+                            <X className="w-4 h-4 text-muted-foreground" />
+                          </button>
+                        </div>
+                        <div className="space-y-3">
+                          <div className={cn("p-2.5 rounded-xl border transition-all", habits.length < 6 ? "bg-primary/10 border-primary/30 scale-[1.02]" : "bg-muted/30 border-transparent opacity-60")}>
+                            <p className="text-xs font-bold flex items-center gap-2">🌱 Seed (1-5 habits)</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">Starting small is the key to deep roots. Focus on consistency!</p>
+                          </div>
+                          <div className={cn("p-2.5 rounded-xl border transition-all", habits.length >= 6 && habits.length <= 10 ? "bg-primary/10 border-primary/30 scale-[1.02]" : "bg-muted/30 border-transparent opacity-60")}>
+                            <p className="text-xs font-bold flex items-center gap-2">🌿 Sprout (6-10 habits)</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">You're branching out! Balancing more habits builds serious discipline.</p>
+                          </div>
+                          <div className={cn("p-2.5 rounded-xl border transition-all", habits.length > 10 ? "bg-primary/10 border-primary/30 scale-[1.02]" : "bg-muted/30 border-transparent opacity-60")}>
+                            <p className="text-xs font-bold flex items-center gap-2">🌳 Tree (11+ habits)</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">A flourishing life! You have the strength to weather any storm.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             )}
 
