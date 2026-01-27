@@ -1,283 +1,304 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Check, Trash2, Sparkles, MapPin, Star, Zap, Mountain, FileText } from 'lucide-react';
+import { Plus, X, Trash2, CheckCircle2, Map as MapIcon, Mountain, ChevronRight } from 'lucide-react';
+import { BucketListItem, BUCKET_CATEGORIES } from '@/lib/habitTypes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { BucketListItem, BUCKET_CATEGORIES } from '@/lib/habitTypes';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface BucketListViewProps {
   items: BucketListItem[];
-  onAddItem: (item: Omit<BucketListItem, 'id' | 'createdAt' | 'isCompleted'>) => void;
+  onAddItem: (name: string, emoji: string, category: BucketListItem['category'], description?: string) => void;
   onDeleteItem: (id: string) => void;
   onToggleComplete: (id: string) => void;
 }
 
-const categoryIcons = {
-  travel: MapPin,
-  experience: Sparkles,
-  skill: Star,
-  personal: Zap,
-  adventure: Mountain,
-  other: FileText,
-};
-
-export const BucketListView = ({
-  items,
-  onAddItem,
-  onDeleteItem,
-  onToggleComplete,
-}: BucketListViewProps) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newItemName, setNewItemName] = useState('');
-  const [newItemEmoji, setNewItemEmoji] = useState('🌟');
-  const [newItemCategory, setNewItemCategory] = useState<BucketListItem['category']>('experience');
-  const [newItemDescription, setNewItemDescription] = useState('');
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
-
-  const handleAddItem = () => {
-    if (!newItemName.trim()) return;
-    
-    onAddItem({
-      name: newItemName.trim(),
-      emoji: newItemEmoji,
-      category: newItemCategory,
-      description: newItemDescription.trim() || undefined,
-    });
-    
-    setNewItemName('');
-    setNewItemEmoji('🌟');
-    setNewItemCategory('experience');
-    setNewItemDescription('');
-    setIsDialogOpen(false);
-  };
-
-  const filteredItems = items.filter(item => {
-    if (filter === 'pending') return !item.isCompleted;
-    if (filter === 'completed') return item.isCompleted;
-    return true;
-  });
+export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplete }: BucketListViewProps) => {
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newCategory, setNewCategory] = useState<BucketListItem['category']>('experience');
+  const [newDescription, setNewDescription] = useState('');
 
   const completedCount = items.filter(i => i.isCompleted).length;
-  const pendingCount = items.filter(i => !i.isCompleted).length;
 
-  const emojis = ['🌟', '🎯', '✈️', '🏔️', '🎭', '🎨', '🎵', '📚', '💪', '🌊', '🏆', '💎', '🚀', '🌈', '🎪', '🗺️'];
+  const handleAdd = () => {
+    if (!newName.trim()) return;
+    const categoryEmoji = BUCKET_CATEGORIES.find(c => c.value === newCategory)?.emoji || '✨';
+    onAddItem(newName, categoryEmoji, newCategory, newDescription);
+    setNewName('');
+    setNewDescription('');
+    setIsAddOpen(false);
+  };
+
+  // Generate path points (Candy Crush style winding path)
+  const getPathPoints = (count: number) => {
+    const points = [];
+    const stepX = 100;
+    const baseY = 150;
+    for (let i = 0; i < count; i++) {
+      const x = 50 + i * stepX;
+      const y = baseY + Math.sin(i * 0.8) * 40;
+      points.push({ x, y });
+    }
+    return points;
+  };
+
+  const pathPoints = getPathPoints(items.length);
+  const penguinTarget = pathPoints[completedCount - 1] || { x: 50, y: 150 };
 
   return (
     <div className="space-y-6">
-      {/* Header Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-card rounded-2xl p-4 border border-border text-center">
-          <p className="text-2xl font-bold text-primary">{items.length}</p>
-          <p className="text-xs text-muted-foreground">Total Dreams</p>
+      {/* Mountain Header */}
+      <div className="relative h-72 w-full rounded-3xl overflow-hidden bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#334155] border border-white/10 shadow-2xl">
+        {/* Distant Mountains */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 flex items-end justify-center gap-1 opacity-40 grayscale-[0.2] pointer-events-none">
+          <Mountain className="w-64 h-64 text-slate-400 -mb-20 -ml-20" />
+          <Mountain className="w-96 h-96 text-slate-300 -mb-24" />
+          <Mountain className="w-64 h-64 text-slate-400 -mb-20 -mr-20" />
         </div>
-        <div className="bg-card rounded-2xl p-4 border border-border text-center">
-          <p className="text-2xl font-bold text-amber-500">{pendingCount}</p>
-          <p className="text-xs text-muted-foreground">In Progress</p>
-        </div>
-        <div className="bg-card rounded-2xl p-4 border border-border text-center">
-          <p className="text-2xl font-bold text-emerald-500">{completedCount}</p>
-          <p className="text-xs text-muted-foreground">Achieved</p>
-        </div>
-      </div>
 
-      {/* Filter Tabs */}
-      <div className="flex gap-2 p-1 bg-muted/50 rounded-xl">
-        {(['all', 'pending', 'completed'] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={cn(
-              "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all",
-              filter === f
-                ? "bg-background shadow-sm text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
+        {/* Snow Layer */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white/20 to-transparent pointer-events-none" />
+        
+        {/* Interactive Map Area */}
+        <div className="absolute inset-0 overflow-x-auto no-scrollbar pt-8">
+          <div 
+            className="relative h-full"
+            style={{ width: `${Math.max(window.innerWidth - 32, items.length * 100 + 200)}px` }}
           >
-            {f === 'all' ? 'All' : f === 'pending' ? 'Dreams' : 'Achieved'}
-          </button>
-        ))}
-      </div>
+            {/* SVG Path */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none">
+              <path
+                d={`M 50 150 ${pathPoints.map(p => `L ${p.x} ${p.y}`).join(' ')}`}
+                fill="none"
+                stroke="white"
+                strokeWidth="4"
+                strokeDasharray="8 8"
+                strokeLinecap="round"
+                className="opacity-20"
+              />
+              <motion.path
+                d={`M 50 150 ${pathPoints.slice(0, completedCount).map(p => `L ${p.x} ${p.y}`).join(' ')}`}
+                fill="none"
+                stroke="white"
+                strokeWidth="4"
+                strokeLinecap="round"
+                className="opacity-40"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+              />
+            </svg>
 
-      {/* Add Button */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button className="w-full gap-2 rounded-xl h-12" variant="outline">
-            <Plus className="w-5 h-5" />
-            Add to Bucket List
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-sm mx-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <span className="text-2xl">{newItemEmoji}</span>
-              Add a Dream
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <Input
-              placeholder="What's on your bucket list?"
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
-              className="text-lg"
-            />
-            
-            {/* Emoji Picker */}
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Pick an icon</p>
-              <div className="flex flex-wrap gap-2">
-                {emojis.map(emoji => (
-                  <button
-                    key={emoji}
-                    onClick={() => setNewItemEmoji(emoji)}
-                    className={cn(
-                      "w-10 h-10 rounded-lg flex items-center justify-center text-xl transition-all",
-                      newItemEmoji === emoji
-                        ? "bg-primary/20 ring-2 ring-primary"
-                        : "bg-muted hover:bg-muted/80"
-                    )}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Penguin */}
+            <motion.div
+              animate={{ 
+                x: penguinTarget.x - 24, 
+                y: penguinTarget.y - 48,
+                scale: [1, 1.05, 1] 
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 50, 
+                damping: 15,
+                scale: { duration: 1, repeat: Infinity } 
+              }}
+              className="absolute z-20 pointer-events-none"
+            >
+              <div className="text-5xl filter drop-shadow-2xl">🐧</div>
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-10 h-3 bg-black/30 blur-sm rounded-full" />
+            </motion.div>
 
-            {/* Category Picker */}
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">Category</p>
-              <div className="grid grid-cols-3 gap-2">
-                {BUCKET_CATEGORIES.map(cat => (
-                  <button
-                    key={cat.value}
-                    onClick={() => setNewItemCategory(cat.value)}
-                    className={cn(
-                      "p-2 rounded-lg text-xs font-medium flex flex-col items-center gap-1 transition-all",
-                      newItemCategory === cat.value
-                        ? "bg-primary/20 ring-2 ring-primary text-primary"
-                        : "bg-muted hover:bg-muted/80 text-muted-foreground"
-                    )}
-                  >
-                    <span className="text-lg">{cat.emoji}</span>
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Optional Description */}
-            <Input
-              placeholder="Add a note (optional)"
-              value={newItemDescription}
-              onChange={(e) => setNewItemDescription(e.target.value)}
-            />
-
-            <Button onClick={handleAddItem} className="w-full" disabled={!newItemName.trim()}>
-              Add to List
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Items List */}
-      {filteredItems.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🌟</div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            {filter === 'completed' ? 'No dreams achieved yet' : 'Your bucket list is empty'}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {filter === 'completed' 
-              ? 'Keep working towards your dreams!' 
-              : 'Start adding things you want to do in your lifetime'}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <AnimatePresence mode="popLayout">
-            {filteredItems.map((item) => {
-              const CategoryIcon = categoryIcons[item.category];
-              const category = BUCKET_CATEGORIES.find(c => c.value === item.category);
-              
+            {/* Checkpoints */}
+            {items.map((item, idx) => {
+              const pos = pathPoints[idx];
               return (
-                <motion.div
+                <motion.button
                   key={item.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => onToggleComplete(item.id)}
                   className={cn(
-                    "group relative rounded-2xl border p-4 transition-all",
-                    item.isCompleted
-                      ? "bg-emerald-500/10 border-emerald-500/30"
-                      : "bg-card border-border hover:border-primary/30"
+                    "absolute -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full border-4 flex items-center justify-center transition-all shadow-xl z-10",
+                    item.isCompleted 
+                      ? "bg-primary border-primary shadow-primary/40" 
+                      : "bg-white/10 border-white/20 backdrop-blur-md"
                   )}
+                  style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
                 >
-                  <div className="flex items-start gap-3">
-                    {/* Checkbox */}
-                    <button
-                      onClick={() => onToggleComplete(item.id)}
-                      className={cn(
-                        "w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
-                        item.isCompleted
-                          ? "bg-emerald-500 border-emerald-500 text-white"
-                          : "border-muted-foreground/30 hover:border-primary"
-                      )}
+                  <span className="text-2xl">{item.emoji}</span>
+                  {item.isCompleted && (
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 bg-white rounded-full p-0.5"
                     >
-                      {item.isCompleted && <Check className="w-4 h-4" />}
-                    </button>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">{item.emoji}</span>
-                        <h4 className={cn(
-                          "font-semibold truncate",
-                          item.isCompleted && "line-through text-muted-foreground"
-                        )}>
-                          {item.name}
-                        </h4>
-                      </div>
-                      
-                      {item.description && (
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                          {item.description}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className={cn(
-                          "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
-                          "bg-muted text-muted-foreground"
-                        )}>
-                          <CategoryIcon className="w-3 h-3" />
-                          {category?.name}
-                        </span>
-                        
-                        {item.isCompleted && item.completedAt && (
-                          <span className="text-xs text-emerald-600">
-                            ✓ {format(new Date(item.completedAt), 'MMM d, yyyy')}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => onDeleteItem(item.id)}
-                      className="opacity-0 group-hover:opacity-100 p-2 hover:bg-destructive/10 rounded-lg transition-all"
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </button>
-                  </div>
-                </motion.div>
+                      <CheckCircle2 className="w-4 h-4 text-primary fill-primary" />
+                    </motion.div>
+                  )}
+                </motion.button>
               );
             })}
-          </AnimatePresence>
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* List Header */}
+      <div className="flex items-center justify-between px-1">
+        <div>
+          <h2 className="text-2xl font-black flex items-center gap-2 tracking-tight">
+            BUCKET LIST
+            <span className="text-xs font-bold bg-primary/20 text-primary px-2.5 py-1 rounded-full border border-primary/20">
+              {completedCount}/{items.length}
+            </span>
+          </h2>
+          <p className="text-sm text-muted-foreground font-medium opacity-70">Your journey towards the mountains of greatness</p>
+        </div>
+        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+          <DialogTrigger asChild>
+            <Button size="icon" className="rounded-full h-12 w-12 shadow-xl hover-elevate active-elevate-2 bg-primary hover:bg-primary/90">
+              <Plus className="w-6 h-6" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md rounded-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">Add to Bucket List</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-muted-foreground">What's the goal?</label>
+                <Input 
+                  placeholder="e.g. See Northern Lights" 
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="rounded-xl h-12 bg-muted/50 border-none focus-visible:ring-primary"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-muted-foreground">Category</label>
+                <Select value={newCategory} onValueChange={(val: any) => setNewCategory(val)}>
+                  <SelectTrigger className="rounded-xl h-12 bg-muted/50 border-none">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl border-none shadow-2xl">
+                    {BUCKET_CATEGORIES.map(cat => (
+                      <SelectItem key={cat.value} value={cat.value} className="rounded-lg">
+                        <span className="flex items-center gap-2">
+                          <span className="text-lg">{cat.emoji}</span>
+                          <span className="font-medium">{cat.name}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-muted-foreground">Notes (optional)</label>
+                <Input 
+                  placeholder="Why is this important?" 
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  className="rounded-xl h-12 bg-muted/50 border-none"
+                />
+              </div>
+              <Button className="w-full h-12 mt-4 rounded-xl font-bold text-base shadow-lg shadow-primary/20" onClick={handleAdd}>Add Item</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* List Items */}
+      <div className="grid gap-3 pb-8">
+        {items.length === 0 ? (
+          <div className="text-center py-16 bg-muted/20 rounded-3xl border-2 border-dashed border-muted/50 flex flex-col items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center">
+              <MapIcon className="w-8 h-8 text-muted-foreground opacity-30" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-muted-foreground font-bold">The map is empty</p>
+              <p className="text-xs text-muted-foreground/60">Add your first dream to start the journey!</p>
+            </div>
+          </div>
+        ) : (
+          items.map((item) => (
+            <motion.div
+              layout
+              key={item.id}
+              className={cn(
+                "group relative p-4 rounded-2xl border transition-all flex items-center justify-between overflow-hidden",
+                item.isCompleted 
+                  ? "bg-muted/30 border-muted/50 grayscale-[0.5]" 
+                  : "bg-card border-border shadow-sm hover:shadow-xl hover:border-primary/20 hover:-translate-y-0.5"
+              )}
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <div className={cn(
+                  "w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm transition-colors",
+                  item.isCompleted ? "bg-muted" : "bg-primary/5 group-hover:bg-primary/10"
+                )}>
+                  {item.emoji}
+                </div>
+                <div className="min-w-0">
+                  <h3 className={cn(
+                    "font-bold truncate text-base tracking-tight",
+                    item.isCompleted && "line-through text-muted-foreground"
+                  )}>
+                    {item.name}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary/60 px-1.5 py-0.5 rounded bg-primary/5">
+                      {item.category}
+                    </span>
+                    {item.description && (
+                      <span className="text-[10px] text-muted-foreground truncate max-w-[120px] font-medium opacity-60">
+                        • {item.description}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full h-10 w-10 text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => onDeleteItem(item.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={item.isCompleted ? "secondary" : "default"}
+                  size="icon"
+                  className={cn(
+                    "rounded-full h-10 w-10 shrink-0 shadow-lg",
+                    !item.isCompleted && "bg-primary shadow-primary/20"
+                  )}
+                  onClick={() => onToggleComplete(item.id)}
+                >
+                  {item.isCompleted ? (
+                    <X className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+            </motion.div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
