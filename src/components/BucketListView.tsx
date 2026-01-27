@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import mountainBg from "@assets/Gemini_Generated_Image_r78is8r78is8r78i_1769502979526.png";
+import mountainBg from "../../attached_assets/Gemini_Generated_Image_r78is8r78is8r78i_1769502979526.png";
 
 interface BucketListViewProps {
   items: BucketListItem[];
