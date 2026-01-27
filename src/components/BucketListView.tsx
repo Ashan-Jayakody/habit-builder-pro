@@ -20,6 +20,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import mountainBg from "@assets/Gemini_Generated_Image_r78is8r78is8r78i_1769502979526.png";
+
 interface BucketListViewProps {
   items: BucketListItem[];
   onAddItem: (name: string, emoji: string, category: BucketListItem['category'], description?: string) => void;
@@ -44,60 +46,73 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
     setIsAddOpen(false);
   };
 
-  // Generate path points (Candy Crush style winding path)
+  // Generate path points (Perspective towards the mountains)
   const getPathPoints = (count: number) => {
     const points = [];
-    const stepX = 100;
-    const baseY = 150;
+    const stepY = -40; // Moving upwards towards mountains
+    const baseY = 240;
+    const centerX = 180;
     for (let i = 0; i < count; i++) {
-      const x = 50 + i * stepX;
-      const y = baseY + Math.sin(i * 0.8) * 40;
-      points.push({ x, y });
+      const progress = i / (Math.max(count, 5));
+      const scale = 1 - (progress * 0.5); // Perspective scaling
+      const x = centerX + Math.sin(i * 1.2) * (60 * scale);
+      const y = baseY + i * stepY * scale;
+      points.push({ x, y, scale });
     }
     return points;
   };
 
   const pathPoints = getPathPoints(items.length);
-  const penguinTarget = pathPoints[completedCount - 1] || { x: 50, y: 150 };
+  const penguinTarget = pathPoints[completedCount - 1] || { x: 180, y: 240, scale: 1 };
 
   return (
     <div className="space-y-6">
       {/* Mountain Header */}
-      <div className="relative h-72 w-full rounded-3xl overflow-hidden bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#334155] border border-white/10 shadow-2xl">
-        {/* Distant Mountains */}
-        <div className="absolute bottom-0 left-0 right-0 h-48 flex items-end justify-center gap-1 opacity-40 grayscale-[0.2] pointer-events-none">
-          <Mountain className="w-64 h-64 text-slate-400 -mb-20 -ml-20" />
-          <Mountain className="w-96 h-96 text-slate-300 -mb-24" />
-          <Mountain className="w-64 h-64 text-slate-400 -mb-20 -mr-20" />
+      <div className="relative h-[400px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-linear hover:scale-110"
+          style={{ backgroundImage: `url(${mountainBg})` }}
+        />
+        
+        {/* Fog/Atmosphere Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-white/20 pointer-events-none" />
+        
+        {/* Animated Fog Clouds */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div 
+            animate={{ x: [-100, 100] }}
+            transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
+            className="absolute top-1/4 left-0 w-full h-32 bg-white/10 blur-[60px] opacity-30"
+          />
+          <motion.div 
+            animate={{ x: [100, -100] }}
+            transition={{ duration: 25, repeat: Infinity, repeatType: "reverse" }}
+            className="absolute top-1/2 left-0 w-full h-40 bg-white/5 blur-[80px] opacity-20"
+          />
         </div>
-
-        {/* Snow Layer */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white/20 to-transparent pointer-events-none" />
         
         {/* Interactive Map Area */}
-        <div className="absolute inset-0 overflow-x-auto no-scrollbar pt-8">
-          <div 
-            className="relative h-full"
-            style={{ width: `${Math.max(window.innerWidth - 32, items.length * 100 + 200)}px` }}
-          >
+        <div className="absolute inset-0 pt-8">
+          <div className="relative h-full w-full max-w-[400px] mx-auto">
             {/* SVG Path */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
               <path
-                d={`M 50 150 ${pathPoints.map(p => `L ${p.x} ${p.y}`).join(' ')}`}
+                d={`M 180 240 ${pathPoints.map(p => `L ${p.x} ${p.y}`).join(' ')}`}
                 fill="none"
                 stroke="white"
                 strokeWidth="4"
                 strokeDasharray="8 8"
                 strokeLinecap="round"
-                className="opacity-20"
+                className="opacity-30"
               />
               <motion.path
-                d={`M 50 150 ${pathPoints.slice(0, completedCount).map(p => `L ${p.x} ${p.y}`).join(' ')}`}
+                d={`M 180 240 ${pathPoints.slice(0, completedCount).map(p => `L ${p.x} ${p.y}`).join(' ')}`}
                 fill="none"
                 stroke="white"
                 strokeWidth="4"
                 strokeLinecap="round"
-                className="opacity-40"
+                className="opacity-60"
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
               />
@@ -106,9 +121,9 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
             {/* Penguin */}
             <motion.div
               animate={{ 
-                x: penguinTarget.x - 24, 
-                y: penguinTarget.y - 48,
-                scale: [1, 1.05, 1] 
+                x: penguinTarget.x - (24 * penguinTarget.scale), 
+                y: penguinTarget.y - (48 * penguinTarget.scale),
+                scale: [penguinTarget.scale, penguinTarget.scale * 1.05, penguinTarget.scale] 
               }}
               transition={{ 
                 type: "spring", 
@@ -128,18 +143,23 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
               return (
                 <motion.button
                   key={item.id}
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.9 }}
+                  whileHover={{ scale: pos.scale * 1.15 }}
+                  whileTap={{ scale: pos.scale * 0.9 }}
                   onClick={() => onToggleComplete(item.id)}
                   className={cn(
-                    "absolute -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full border-4 flex items-center justify-center transition-all shadow-xl z-10",
+                    "absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-4 flex items-center justify-center transition-all shadow-xl z-10",
                     item.isCompleted 
                       ? "bg-primary border-primary shadow-primary/40" 
-                      : "bg-white/10 border-white/20 backdrop-blur-md"
+                      : "bg-white/20 border-white/30 backdrop-blur-md"
                   )}
-                  style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
+                  style={{ 
+                    left: `${pos.x}px`, 
+                    top: `${pos.y}px`,
+                    width: `${56 * pos.scale}px`,
+                    height: `${56 * pos.scale}px`
+                  }}
                 >
-                  <span className="text-2xl">{item.emoji}</span>
+                  <span style={{ fontSize: `${24 * pos.scale}px` }}>{item.emoji}</span>
                   {item.isCompleted && (
                     <motion.div 
                       initial={{ scale: 0 }}
