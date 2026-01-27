@@ -21,10 +21,13 @@ export const useBucketList = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  const addItem = (item: Omit<BucketListItem, 'id' | 'createdAt' | 'isCompleted'>) => {
+  const addItem = (name: string, emoji: string, category: BucketListItem['category'], description?: string) => {
     const newItem: BucketListItem = {
-      ...item,
       id: crypto.randomUUID(),
+      name,
+      emoji,
+      category,
+      description,
       createdAt: new Date().toISOString(),
       isCompleted: false,
     };
