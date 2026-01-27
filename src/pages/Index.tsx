@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { useHabits } from '@/hooks/useHabits';
 import { useMomentumBank } from '@/hooks/useMomentumBank';
+import { useBucketList } from '@/hooks/useBucketList';
 import { ViewMode } from '@/lib/habitTypes';
 import { AddHabitDialog } from '@/components/AddHabitDialog';
 import { HabitCard } from '@/components/HabitCard';
@@ -13,9 +14,10 @@ import { StatsOverview } from '@/components/StatsOverview';
 import { EmptyState } from '@/components/EmptyState';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { MomentumBank } from '@/components/MomentumBank';
+import { BucketListView } from '@/components/BucketListView';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle, X } from 'lucide-react';
+import { CalendarDays, LayoutGrid, Calendar, FileText, Target, UserCircle, X, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GoalView } from '@/components/GoalView';
 import { Onboarding } from '@/components/Onboarding';
@@ -62,6 +64,13 @@ const Index = () => {
     addGoalLog,
     toggleHabitFreeze,
   } = useHabits();
+
+  const {
+    items: bucketItems,
+    addItem: addBucketItem,
+    deleteItem: deleteBucketItem,
+    toggleComplete: toggleBucketComplete,
+  } = useBucketList();
 
   useNotifications(habits, isHabitCompletedOnDate);
 
@@ -407,42 +416,61 @@ const Index = () => {
                 onAddLog={addGoalLog}
               />
             )}
+
+            {viewMode === 'bucketlist' && (
+              <BucketListView
+                items={bucketItems}
+                onAddItem={addBucketItem}
+                onDeleteItem={deleteBucketItem}
+                onToggleComplete={toggleBucketComplete}
+              />
+            )}
           </>
         )}
       </main>
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-50 pb-safe">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-around">
+        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-around">
           <button
             onClick={() => setViewMode('today')}
             className={cn(
-              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              "flex flex-col items-center gap-1 transition-colors min-w-14",
               viewMode === 'today' ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <LayoutGrid className="w-6 h-6" />
+            <LayoutGrid className="w-5 h-5" />
             <span className="text-[10px] font-medium">Today</span>
           </button>
           <button
             onClick={() => setViewMode('week')}
             className={cn(
-              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              "flex flex-col items-center gap-1 transition-colors min-w-14",
               viewMode === 'week' ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <Calendar className="w-6 h-6" />
+            <Calendar className="w-5 h-5" />
             <span className="text-[10px] font-medium">Overview</span>
           </button>
           <button
             onClick={() => setViewMode('goals')}
             className={cn(
-              "flex flex-col items-center gap-1 transition-colors min-w-16",
+              "flex flex-col items-center gap-1 transition-colors min-w-14",
               viewMode === 'goals' ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <Target className="w-6 h-6" />
+            <Target className="w-5 h-5" />
             <span className="text-[10px] font-medium">Goals</span>
+          </button>
+          <button
+            onClick={() => setViewMode('bucketlist')}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors min-w-14",
+              viewMode === 'bucketlist' ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            <ListChecks className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Bucket</span>
           </button>
         </div>
       </nav>

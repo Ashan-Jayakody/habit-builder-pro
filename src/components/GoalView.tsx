@@ -189,7 +189,7 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                           strokeWidth="4"
                           className="text-muted/20"
                           strokeLinecap="round"
-                          strokeJoin="round"
+                          strokeLinejoin="round"
                         />
                         <motion.path
                           d={`M 50 150 ${daysArr.map((_, i) => {
@@ -202,7 +202,7 @@ export const GoalView = ({ goals, onAddGoal, onDeleteGoal, onToggleDay, onAddLog
                           strokeWidth="4"
                           className="text-primary"
                           strokeLinecap="round"
-                          strokeJoin="round"
+                          strokeLinejoin="round"
                           initial={{ pathLength: 0 }}
                           animate={{ pathLength: goal.completedDays.length / totalDays }}
                           transition={{ duration: 1.5, ease: "easeInOut" }}
