@@ -24,7 +24,7 @@ export interface HabitStats {
   totalCompletions: number;
 }
 
-export type ViewMode = 'today' | 'week' | 'month' | 'report' | 'goals';
+export type ViewMode = 'today' | 'week' | 'month' | 'report' | 'goals' | 'bucketlist';
 
 export interface GoalLog {
   date: string;
@@ -39,6 +39,26 @@ export interface Goal {
   logs: GoalLog[];
   completedDays: string[]; // dates that are "ticked"
 }
+
+export interface BucketListItem {
+  id: string;
+  name: string;
+  emoji: string;
+  category: 'travel' | 'experience' | 'skill' | 'personal' | 'adventure' | 'other';
+  description?: string;
+  createdAt: string;
+  completedAt?: string;
+  isCompleted: boolean;
+}
+
+export const BUCKET_CATEGORIES = [
+  { name: 'Travel', value: 'travel', emoji: '✈️' },
+  { name: 'Experience', value: 'experience', emoji: '🎭' },
+  { name: 'Skill', value: 'skill', emoji: '🎯' },
+  { name: 'Personal', value: 'personal', emoji: '💫' },
+  { name: 'Adventure', value: 'adventure', emoji: '🏔️' },
+  { name: 'Other', value: 'other', emoji: '📝' },
+] as const;
 
 export const HABIT_COLORS = [
   { name: 'Sky', value: 'hsl(199, 89%, 48%)' },
