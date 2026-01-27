@@ -50,7 +50,7 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
   const getPathPoints = (count: number) => {
     const points = [];
     const stepY = -45; // Slightly more vertical space
-    const baseY = 280; // Start lower from the bottom (was 240)
+    const baseY = 350; // Start lower from the bottom (was 240)
     const centerX = 200; // Center relative to container width
     
     for (let i = 0; i < count; i++) {
@@ -70,7 +70,7 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
   };
 
   const pathPoints = getPathPoints(items.length);
-  const penguinTarget = pathPoints[completedCount - 1] || { x: 200, y: 280, scale: 1 };
+  const penguinTarget = pathPoints[completedCount - 1] || { x: 200, y: 350, scale: 1 };
 
   return (
     <div className="space-y-6">
@@ -192,7 +192,7 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
               {completedCount}/{items.length}
             </span>
           </h2>
-          <p className="text-sm text-muted-foreground font-medium opacity-70">Your journey towards the mountains of greatness</p>
+          <p className="text-sm text-muted-foreground font-medium opacity-70">“Don’t let anyone hold you back. Live your life full of adventure.”</p>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
