@@ -49,13 +49,20 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
   // Generate path points (Perspective towards the mountains)
   const getPathPoints = (count: number) => {
     const points = [];
-    const stepY = -40; // Moving upwards towards mountains
-    const baseY = 240;
-    const centerX = 180;
+    const stepY = -45; // Slightly more vertical space
+    const baseY = 280; // Start lower from the bottom (was 240)
+    const centerX = 200; // Center relative to container width
+    
     for (let i = 0; i < count; i++) {
       const progress = i / (Math.max(count, 5));
       const scale = 1 - (progress * 0.5); // Perspective scaling
-      const x = centerX + Math.sin(i * 1.2) * (60 * scale);
+      
+      // Spread wider: Alternating left/right/middle with wider amplitude
+      // Use sine for smooth curves, but vary amplitude by index to spread across horizontal space
+      const phase = i * 1.5;
+      const amplitude = 100 * scale; // Wider spread (was 60)
+      const x = centerX + Math.sin(phase) * amplitude;
+      
       const y = baseY + i * stepY * scale;
       points.push({ x, y, scale });
     }
@@ -63,12 +70,12 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
   };
 
   const pathPoints = getPathPoints(items.length);
-  const penguinTarget = pathPoints[completedCount - 1] || { x: 180, y: 240, scale: 1 };
+  const penguinTarget = pathPoints[completedCount - 1] || { x: 200, y: 280, scale: 1 };
 
   return (
     <div className="space-y-6">
       {/* Mountain Header */}
-      <div className="relative h-[400px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+      <div className="relative h-[450px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-linear hover:scale-110"
@@ -76,7 +83,7 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
         />
         
         {/* Fog/Atmosphere Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-white/20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-white/30 pointer-events-none" />
         
         {/* Animated Fog Clouds */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -94,25 +101,25 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
         
         {/* Interactive Map Area */}
         <div className="absolute inset-0 pt-8">
-          <div className="relative h-full w-full max-w-[400px] mx-auto">
+          <div className="relative h-full w-full max-w-[400px] mx-auto overflow-visible">
             {/* SVG Path */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none">
+            <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
               <path
-                d={`M 180 240 ${pathPoints.map(p => `L ${p.x} ${p.y}`).join(' ')}`}
+                d={`M 200 280 ${pathPoints.map(p => `L ${p.x} ${p.y}`).join(' ')}`}
                 fill="none"
                 stroke="white"
                 strokeWidth="4"
                 strokeDasharray="8 8"
                 strokeLinecap="round"
-                className="opacity-30"
+                className="opacity-20"
               />
               <motion.path
-                d={`M 180 240 ${pathPoints.slice(0, completedCount).map(p => `L ${p.x} ${p.y}`).join(' ')}`}
+                d={`M 200 280 ${pathPoints.slice(0, completedCount).map(p => `L ${p.x} ${p.y}`).join(' ')}`}
                 fill="none"
                 stroke="white"
                 strokeWidth="4"
                 strokeLinecap="round"
-                className="opacity-60"
+                className="opacity-50"
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
               />
