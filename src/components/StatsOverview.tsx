@@ -4,6 +4,7 @@ import { Habit, HabitStats } from '@/lib/habitTypes';
 import { Flame, Target, Trophy, CheckCircle, Info, Leaf, Sprout, TreeDeciduous } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface StatsOverviewProps {
   habits: Habit[];
