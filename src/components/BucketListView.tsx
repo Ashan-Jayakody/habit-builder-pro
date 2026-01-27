@@ -74,6 +74,7 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
 
   return (
     <div className="space-y-6">
+      <p className="text-lg text-black font-bold opacity-90">“Don’t let anyone hold you back. Live your life full of adventure.”</p>
       {/* Mountain Header */}
       <div className="relative h-[450px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
         {/* Background Image */}
@@ -192,7 +193,6 @@ export const BucketListView = ({ items, onAddItem, onDeleteItem, onToggleComplet
               {completedCount}/{items.length}
             </span>
           </h2>
-          <p className="text-sm text-muted-foreground font-medium opacity-70">“Don’t let anyone hold you back. Live your life full of adventure.”</p>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
